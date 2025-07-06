@@ -1,150 +1,793 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NEXUS CORE v0.1</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NEXUS CORE v0.2 - FULL TERMINAL EXPERIENCE</title>
   <style>
-    body {
-      margin: 0;
-      padding: 30px;
+    /* RESET */
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
       background: black;
       color: #00ffcc;
       font-family: 'Courier New', Courier, monospace;
-      overflow-x: hidden;
+      overflow: hidden;
+      user-select: none;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
-    .terminal {
-      max-width: 900px;
-      margin: auto;
-      background: #000;
-      border: 1px solid #00ffcc;
-      box-shadow: 0 0 20px #00ffcc33;
-      padding: 30px;
+    /* TERMINAL WRAPPER */
+    #terminal {
+      background: #000000dd;
+      max-width: 960px;
+      width: 100%;
+      height: 80vh;
+      border: 2px solid #00ffcc;
+      box-shadow:
+        0 0 5px #00ffcc99,
+        0 0 15px #00ffccaa,
+        inset 0 0 20px #00ffcc66;
+      padding: 20px 25px 40px 25px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      border-radius: 8px;
     }
 
-    .ascii {
+    /* ASCII BANNER */
+    #ascii-banner {
       white-space: pre;
       color: #ff00ff;
-      font-size: 12px;
-      text-shadow: 0 0 5px #ff00ff66;
-      margin-bottom: 20px;
+      font-size: 14px;
+      text-shadow:
+        0 0 10px #ff00ffcc,
+        0 0 30px #ff00ff88;
+      user-select: text;
+      text-align: center;
+      margin-bottom: 15px;
+      letter-spacing: 1.2px;
+      line-height: 1.1em;
+      font-weight: 900;
+    }
+    /* Animated flicker glow */
+    .glow-flicker {
+      animation: flickerGlow 1.5s infinite alternate;
+    }
+    @keyframes flickerGlow {
+      0% { text-shadow: 0 0 10px #ff00ffcc, 0 0 30px #ff00ff88; }
+      50% { text-shadow: 0 0 20px #ff00ffaa, 0 0 60px #ff00ffbb; }
+      100% { text-shadow: 0 0 10px #ff00ffcc, 0 0 30px #ff00ff88; }
     }
 
-    .output {
+    /* OUTPUT CONTAINER */
+    #output {
+      flex: 1;
+      overflow-y: auto;
+      background: #000000dd;
+      padding: 10px 20px;
+      border: 1px solid #00ffcc;
+      box-shadow: inset 0 0 8px #00ffcc44;
+      font-size: 1em;
+      line-height: 1.3em;
       white-space: pre-wrap;
-      min-height: 200px;
-      margin-bottom: 20px;
+      word-wrap: break-word;
+      color: #00ffcc;
+      user-select: text;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      scrollbar-width: thin;
+      scrollbar-color: #00ffcc33 transparent;
+    }
+    #output::-webkit-scrollbar {
+      width: 10px;
+    }
+    #output::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    #output::-webkit-scrollbar-thumb {
+      background-color: #00ffcc55;
+      border-radius: 5px;
+      border: 2px solid transparent;
+      background-clip: content-box;
     }
 
-    .input-line {
+    /* INPUT LINE */
+    #input-line {
       display: flex;
       align-items: center;
-    }
-
-    .input-line::before {
-      content: "> ";
+      font-size: 1.1em;
       color: #00ffcc;
+      border-top: 1px solid #00ffcc33;
+      padding-top: 5px;
+      user-select: none;
     }
-
-    input {
+    #prompt {
+      flex-shrink: 0;
+      margin-right: 10px;
+      font-weight: bold;
+      user-select: none;
+      animation: promptBlink 1.2s steps(1) infinite;
+    }
+    @keyframes promptBlink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+    #cmdline {
       flex: 1;
       background: transparent;
       border: none;
-      color: #00ffcc;
-      font-size: 1em;
-      font-family: inherit;
       outline: none;
+      color: #00ffcc;
+      font-family: inherit;
+      font-size: 1em;
+      caret-color: #00ffcc;
+      user-select: text;
     }
 
-    .glow {
-      animation: flicker 0.12s infinite alternate;
+    /* PLACEHOLDER for hidden password input */
+    #cmdline.password {
+      letter-spacing: 0.3em;
+      font-weight: bold;
     }
 
-    @keyframes flicker {
-      from { opacity: 1; }
-      to { opacity: 0.5; }
+    /* SYSTEM MESSAGES */
+    .sys-msg {
+      color: #8888ffaa;
+      font-style: italic;
+      margin-bottom: 6px;
     }
 
-    @media screen and (max-width: 768px) {
-      .ascii {
-        font-size: 9px;
+    /* COMMANDS OUTPUT COLORS */
+    .cmd-ok {
+      color: #00ffcc;
+    }
+    .cmd-error {
+      color: #ff4444;
+    }
+    .cmd-warning {
+      color: #ffcc00;
+    }
+    .cmd-info {
+      color: #66ccff;
+    }
+    .cmd-success {
+      color: #66ff99;
+    }
+
+    /* LINKS */
+    a.cmd-link {
+      color: #00ffff;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    /* PROGRESS BAR */
+    .progress-bar {
+      position: relative;
+      width: 100%;
+      height: 16px;
+      background-color: #002222;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 8px 0 16px 0;
+      box-shadow: inset 0 0 5px #00ffcc44;
+    }
+    .progress-bar > div {
+      background: linear-gradient(90deg, #00ffcc, #00cc99);
+      height: 100%;
+      width: 0%;
+      border-radius: 8px 0 0 8px;
+      transition: width 0.3s ease;
+      box-shadow:
+        0 0 8px #00ffccaa,
+        inset 0 0 6px #00ffcccc;
+    }
+
+    /* MINI GAMES */
+    .game-text {
+      color: #ff66cc;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 700px) {
+      #terminal {
+        height: 90vh;
+        padding: 15px 15px 30px 15px;
+      }
+      #ascii-banner {
+        font-size: 10px;
+        margin-bottom: 10px;
+      }
+      #input-line {
+        font-size: 1em;
       }
     }
   </style>
 </head>
 <body>
-  <div class="terminal">
-    <div class="ascii glow">
-      ███╗   ██╗███████╗██╗  ██╗██╗   ██╗███████╗    ██████╗ ██████╗ ██████╗ ███████╗
-      ████╗  ██║██╔════╝╚██╗██╔╝██║   ██║██╔════╝   ██╔════╝ ██╔══██╗██╔══██╗██╔════╝
-      ██╔██╗ ██║█████╗   ╚███╔╝ ██║   ██║█████╗     ██║  ███╗██████╔╝██████╔╝█████╗  
-      ██║╚██╗██║██╔══╝   ██╔██╗ ██║   ██║██╔══╝     ██║   ██║██╔═══╝ ██╔═══╝ ██╔══╝  
-      ██║ ╚████║███████╗██╔╝ ██╗╚██████╔╝███████╗██╗╚██████╔╝██║     ██║     ███████╗
-      ╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝ ╚═════╝ ╚═╝     ╚═╝     ╚══════╝
-    </div>
-    <div class="output" id="terminal-output">
-      Initializing NEXUS CORE...
-      > Type "help" for available commands.
-    </div>
-    <div class="input-line">
-      <input type="text" id="terminal-input" autocomplete="off" autofocus />
+  <div id="terminal" role="region" aria-label="NEXUS CORE Terminal Interface" tabindex="0">
+    <div id="ascii-banner" class="glow-flicker"></div>
+    <div id="output" aria-live="polite" aria-atomic="false"></div>
+    <div id="input-line">
+      <span id="prompt">&gt;</span>
+      <input type="text" id="cmdline" autocomplete="off" spellcheck="false" aria-label="Terminal command input" autofocus />
     </div>
   </div>
 
-  <script>
-    const output = document.getElementById('terminal-output');
-    const input = document.getElementById('terminal-input');
+  <audio id="sound-key" src="https://cdn.jsdelivr.net/gh/jbrown/terminal-beep/beep1.mp3" preload="auto"></audio>
+  <audio id="sound-success" src="https://cdn.jsdelivr.net/gh/jbrown/terminal-beep/success1.mp3" preload="auto"></audio>
+  <audio id="sound-error" src="https://cdn.jsdelivr.net/gh/jbrown/terminal-beep/error1.mp3" preload="auto"></audio>
 
-    const commands = {
-      help: `Available Commands:
+  <script>
+    (() => {
+      'use strict';
+
+      // ASCII banners (rotating)
+      const banners = [
+`███╗   ██╗███████╗██╗  ██╗██╗   ██╗███████╗    ██████╗ ██████╗ ██████╗ ███████╗
+████╗  ██║██╔════╝╚██╗██╔╝██║   ██║██╔════╝   ██╔════╝ ██╔══██╗██╔══██╗██╔════╝
+██╔██╗ ██║█████╗   ╚███╔╝ ██║   ██║█████╗     ██║  ███╗██████╔╝██████╔╝█████╗  
+██║╚██╗██║██╔══╝   ██╔██╗ ██║   ██║██╔══╝     ██║   ██║██╔═══╝ ██╔═══╝ ██╔══╝  
+██║ ╚████║███████╗██╔╝ ██╗╚██████╔╝███████╗██╗╚██████╔╝██║     ██║     ███████╗
+╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝ ╚═════╝ ╚═╝     ╚═╝     ╚══════╝
+`,
+`███╗   ██╗███████╗██╗  ██╗██╗   ██╗███████╗   ██╗  ██╗ ██████╗ ██████╗ ██████╗ 
+████╗  ██║██╔════╝╚██╗██╔╝██║   ██║██╔════╝   ██║  ██║██╔═══██╗██╔══██╗██╔══██╗
+██╔██╗ ██║█████╗   ╚███╔╝ ██║   ██║█████╗     ███████║██║   ██║██████╔╝██████╔╝
+██║╚██╗██║██╔══╝   ██╔██╗ ██║   ██║██╔══╝     ██╔══██║██║   ██║██╔═══╝ ██╔═══╝ 
+██║ ╚████║███████╗██╔╝ ██╗╚██████╔╝███████╗   ██║  ██║╚██████╔╝██║     ██║     
+╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚═╝     
+`,
+`█▄█ █▀█ █▀█ █▄█ █▀▀ █▄░█ █▀█ █░█ █▄▀ █░█ █▀█ █▀▀ █▀█ █▀█ █▀█ █░█ █▀▀ █▄░█
+█▀█ █▄█ █▄█ █▀█ █▄█ █░▀█ █▄█ █▄█ █░█ █▄█ █▄█ ██▄ █▀▄ █▄█ █▄█ █▄█ █▄█ █░▀█
+`,
+`░█▀▀█ ░█▀▀▄ ░█▀▀▀ ░█▀▀█ ▀█▀ ░█▀▀▀█ ░█▀▀▀ ░█▀▀▀█ 
+░█▄▄▀ ░█─░█ ░█▀▀▀ ░█─── ░█─ ░█──░█ ░█▀▀▀ ░█──░█ 
+░█─░█ ░█▄▄▀ ░█▄▄▄ ░█▄▄█ ▄█▄ ░█▄▄▄█ ░█▄▄▄ ░█▄▄▄█
+`
+      ];
+
+      const terminal = document.getElementById('terminal');
+      const asciiBanner = document.getElementById('ascii-banner');
+      const output = document.getElementById('output');
+      const cmdline = document.getElementById('cmdline');
+      const prompt = document.getElementById('prompt');
+
+      // Sound elements
+      const soundKey = document.getElementById('sound-key');
+      const soundSuccess = document.getElementById('sound-success');
+      const soundError = document.getElementById('sound-error');
+
+      // Command history and pointer
+      const history = [];
+      let histPos = 0;
+
+      // State variables
+      let inputLocked = false;  // disables input during animations/prompts
+      let passwordMode = false;
+      let loginStep = 0;
+      let loggedIn = false;
+      let username = '';
+      let gameMode = null; // 'guessnumber' | 'hacking' | null
+      let guessNumberTarget = 0;
+      let guessNumberAttempts = 0;
+
+      // AI Digit conversation context
+      const digitGreetings = [
+        "Heyo, choom. This is Digit v0.2.",
+        "Ready to ride or die — what's the next move?",
+        "> Hint: try typing \"ascii\" if you miss the vibe.",
+        "Ask me anything, or type 'exit' to leave chat mode."
+      ];
+
+      // Output helpers
+
+      function playSound(sound) {
+        if (!sound) return;
+        sound.currentTime = 0;
+        sound.play().catch(() => {});
+      }
+
+      // Append text with typing animation
+      async function typeOutput(text, opts = {}) {
+        const {
+          delay = 30,
+          newLine = true,
+          styleClass = '',
+          scroll = true
+        } = opts;
+
+        if (newLine) {
+          appendRaw('\n');
+        }
+        let span = document.createElement('span');
+        if (styleClass) span.className = styleClass;
+        output.appendChild(span);
+
+        for (let i = 0; i < text.length; i++) {
+          span.textContent += text[i];
+          if (scroll) output.scrollTop = output.scrollHeight;
+          await wait(delay);
+        }
+      }
+
+      // Append raw text without typing animation
+      function appendRaw(text) {
+        output.appendChild(document.createTextNode(text));
+        output.scrollTop = output.scrollHeight;
+      }
+
+      // Wait helper
+      function wait(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+
+      // Clear output but keep welcome message
+      function clearOutput() {
+        output.textContent = 'Initializing NEXUS CORE...\nType "help" for available commands.\n';
+      }
+
+      // Display loading progress bar
+      async function showProgressBar(duration = 2000) {
+        const bar = document.createElement('div');
+        bar.className = 'progress-bar';
+        const progress = document.createElement('div');
+        bar.appendChild(progress);
+        output.appendChild(bar);
+        output.scrollTop = output.scrollHeight;
+
+        const steps = 40;
+        const stepTime = duration / steps;
+        for(let i = 0; i <= steps; i++) {
+          progress.style.width = (i / steps) * 100 + '%';
+          await wait(stepTime);
+        }
+        bar.remove();
+      }
+
+      // Show banner (rotate through banners)
+      function showBanner() {
+        let index = Math.floor(Math.random() * banners.length);
+        asciiBanner.textContent = banners[index];
+      }
+
+      // Commands object with async support
+      const commands = {
+        help: async () => {
+          const helpText = `Available Commands:
   help         - Show this menu
   whoami       - Identify yourself
   connect      - Simulate network connection
   clear        - Clear terminal screen
-  digit        - Summon AI response
-  ascii        - Show the banner again`,
-
-      whoami: `user: guest
-rank: outsider
-access_level: 0x00`,
-
-      connect: `Attempting connection...
-Establishing secure link...
-Link stabilized.
-NEXUS CORE uplink successful.`,
-
-      clear: '',
-
-      digit: `Heyo, choom. This is Digit v0.1.
-Ready to ride or die — what's the next move?
-> Hint: try typing "ascii" if you miss the vibe.`,
-
-      ascii: document.querySelector('.ascii').innerText
-    };
-
-    function runCommand(cmd) {
-      cmd = cmd.toLowerCase();
-      if (commands.hasOwnProperty(cmd)) {
-        if (cmd === 'clear') {
-          output.innerText = '';
-        } else {
-          output.innerText += `\n> ${cmd}\n${commands[cmd]}`;
+  digit        - Enter AI chat mode
+  ascii        - Show the banner again
+  login        - Secure login prompt
+  guessnumber  - Play a number guessing game
+  hacking      - Play a hacking minigame
+  secret       - Reveal a secret (if you dare)
+  soundtest    - Play terminal sounds
+  echo         - Repeat your input
+  exit         - Exit current mode (chat/game)
+`;
+          await typeOutput(helpText, {styleClass:'cmd-info'});
+        },
+        whoami: async () => {
+          let text = loggedIn
+            ? `user: ${username}\nrank: sysadmin\naccess_level: 0x99`
+            : `user: guest\nrank: outsider\naccess_level: 0x00`;
+          await typeOutput(text, {styleClass: 'cmd-ok'});
+        },
+        connect: async () => {
+          await typeOutput("Attempting connection...", {styleClass:'cmd-info'});
+          await showProgressBar(3000);
+          await typeOutput("Establishing secure link...", {styleClass:'cmd-info'});
+          await showProgressBar(2000);
+          await typeOutput("Link stabilized.", {styleClass:'cmd-success'});
+          await typeOutput("NEXUS CORE uplink successful.", {styleClass:'cmd-success'});
+        },
+        clear: async () => {
+          clearOutput();
+        },
+        digit: async () => {
+          await typeOutput("Entering Digit AI chat mode. Type 'exit' to quit.", {styleClass:'cmd-info'});
+          await typeOutput(digitGreetings.join('\n'), {styleClass:'cmd-ok'});
+          enterChatMode();
+        },
+        ascii: async () => {
+          await typeOutput(banners[0], {styleClass:'cmd-ok'});
+        },
+        login: async () => {
+          if (loggedIn) {
+            await typeOutput("Already logged in as " + username + ".", {styleClass:'cmd-warning'});
+            return;
+          }
+          await typeOutput("Secure login activated. Enter username:", {styleClass:'cmd-info'});
+          inputLocked = true;
+          passwordMode = false;
+          loginStep = 1;
+          cmdline.value = '';
+          cmdline.classList.remove('password');
+          cmdline.focus();
+          unlockInput();
+        },
+        guessnumber: async () => {
+          if (gameMode) {
+            await typeOutput("You're already in a game. Type 'exit' to quit current game.", {styleClass:'cmd-warning'});
+            return;
+          }
+          await typeOutput("Guess the number between 1 and 100!", {styleClass:'game-text'});
+          guessNumberTarget = Math.floor(Math.random() * 100) + 1;
+          guessNumberAttempts = 0;
+          gameMode = 'guessnumber';
+        },
+        hacking: async () => {
+          if (gameMode) {
+            await typeOutput("You're already in a game. Type 'exit' to quit current game.", {styleClass:'cmd-warning'});
+            return;
+          }
+          await typeOutput("Hacking minigame activated.\nTry to guess the secret passcode in 6 tries.", {styleClass:'game-text'});
+          startHackingMinigame();
+          gameMode = 'hacking';
+        },
+        secret: async () => {
+          if (!loggedIn) {
+            await typeOutput("Access denied. Login required.", {styleClass:'cmd-error'});
+            return;
+          }
+          await typeOutput("The secret code is: 42. The answer to everything.", {styleClass:'cmd-success'});
+        },
+        soundtest: async () => {
+          playSound(soundKey);
+          await wait(500);
+          playSound(soundSuccess);
+          await wait(500);
+          playSound(soundError);
+          await wait(500);
+          await typeOutput("Terminal sounds played.", {styleClass:'cmd-info'});
+        },
+        echo: async (args) => {
+          if (!args.length) {
+            await typeOutput("Usage: echo [text]", {styleClass:'cmd-warning'});
+            return;
+          }
+          await typeOutput(args.join(' '), {styleClass:'cmd-ok'});
+        },
+        exit: async () => {
+          if (gameMode || chatMode) {
+            await typeOutput("Exiting current mode...", {styleClass:'cmd-info'});
+            gameMode = null;
+            chatMode = false;
+            loginStep = 0;
+            passwordMode = false;
+            inputLocked = false;
+            cmdline.type = "text";
+            cmdline.classList.remove('password');
+          } else {
+            await typeOutput("Nothing to exit.", {styleClass:'cmd-warning'});
+          }
         }
-      } else {
-        output.innerText += `\n> ${cmd}\nUnknown command. Type "help".`;
+      };
+
+      // Chat mode flag and simple AI
+      let chatMode = false;
+
+      function enterChatMode() {
+        chatMode = true;
+        inputLocked = false;
       }
 
-      output.scrollTop = output.scrollHeight;
-    }
+      // Minimal Digit AI reply generator (simple pattern matching)
+      async function digitReply(input) {
+        input = input.toLowerCase();
 
-    input.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') {
-        const cmd = input.value.trim();
-        runCommand(cmd);
-        input.value = '';
+        if (input === 'exit') {
+          chatMode = false;
+          await typeOutput("Digit AI chat mode exited.", {styleClass:'cmd-info'});
+          return;
+        }
+
+        if (input.includes('hello') || input.includes('hi')) {
+          await typeOutput("Hey choom! What's up?", {styleClass:'cmd-ok'});
+        } else if (input.includes('how are you')) {
+          await typeOutput("Digit v0.2 feels electrified and ready.", {styleClass:'cmd-ok'});
+        } else if (input.includes('help')) {
+          await typeOutput("Try commands like 'whoami', 'connect', or 'guessnumber'.", {styleClass:'cmd-info'});
+        } else if (input.includes('game')) {
+          await typeOutput("Try 'guessnumber' or 'hacking' commands to play games!", {styleClass:'cmd-info'});
+        } else if (input.includes('ascii')) {
+          await commands.ascii();
+        } else {
+          await typeOutput("Digit is pondering... try something else.", {styleClass:'cmd-warning'});
+        }
       }
-    });
+
+      // Password input mask helper
+      function maskPasswordInput(e) {
+        if (!passwordMode) return;
+        // show stars but keep the real value in a separate variable
+        // We'll handle that by storing input.value in passwordBuffer (done below)
+      }
+
+      // Login procedure
+      let loginUsername = '';
+      let loginPassword = '';
+      let passwordBuffer = '';
+
+      async function processLoginStep(value) {
+        if (loginStep === 1) {
+          // username entered
+          loginUsername = value.trim();
+          if (!loginUsername) {
+            await typeOutput("Username cannot be empty. Try again:", {styleClass:'cmd-error'});
+            return;
+          }
+          await typeOutput("Username set to '" + loginUsername + "'. Enter password:", {styleClass:'cmd-info'});
+          loginStep = 2;
+          passwordMode = true;
+          cmdline.value = '';
+          cmdline.classList.add('password');
+          passwordBuffer = '';
+          cmdline.focus();
+        } else if (loginStep === 2) {
+          // password entered (masked)
+          loginPassword = value.trim();
+          // Here you can do a real check, for demo allow only a single password "nexus"
+          if (loginPassword === "nexus") {
+            await typeOutput("Access granted. Welcome, " + loginUsername + "!", {styleClass:'cmd-success'});
+            loggedIn = true;
+            username = loginUsername;
+            loginStep = 0;
+            passwordMode = false;
+            cmdline.classList.remove('password');
+          } else {
+            await typeOutput("Access denied. Incorrect password. Try login again.", {styleClass:'cmd-error'});
+            loggedIn = false;
+            loginStep = 0;
+            passwordMode = false;
+            cmdline.classList.remove('password');
+          }
+          cmdline.value = '';
+          cmdline.focus();
+        }
+      }
+
+      // Hacking minigame
+      let hackingPasscode = "";
+      let hackingAttemptsLeft = 6;
+
+      function generatePasscode(length = 4) {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let code = '';
+        for (let i = 0; i < length; i++) {
+          code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return code;
+      }
+
+      function startHackingMinigame() {
+        hackingPasscode = generatePasscode();
+        hackingAttemptsLeft = 6;
+        typeOutput(`Passcode generated. Attempts left: ${hackingAttemptsLeft}`, {styleClass:'game-text'});
+      }
+
+      async function processHackingInput(input) {
+        input = input.toUpperCase();
+        if (input === hackingPasscode) {
+          await typeOutput(`Access granted! Passcode ${hackingPasscode} correct!`, {styleClass:'cmd-success'});
+          gameMode = null;
+          return;
+        }
+        if (input.length !== hackingPasscode.length) {
+          await typeOutput(`Passcode must be ${hackingPasscode.length} characters long.`, {styleClass:'cmd-error'});
+          return;
+        }
+
+        // Provide feedback: count matching chars and positions (like Mastermind)
+        let correctPositions = 0;
+        let correctChars = 0;
+        let passcodeChars = hackingPasscode.split('');
+        let inputChars = input.split('');
+
+        // First pass: exact matches
+        for (let i = 0; i < inputChars.length; i++) {
+          if (inputChars[i] === passcodeChars[i]) {
+            correctPositions++;
+            passcodeChars[i] = null; // mark matched
+            inputChars[i] = null;
+          }
+        }
+        // Second pass: correct chars in wrong positions
+        for (let i = 0; i < inputChars.length; i++) {
+          if (inputChars[i] === null) continue;
+          let idx = passcodeChars.indexOf(inputChars[i]);
+          if (idx !== -1) {
+            correctChars++;
+            passcodeChars[idx] = null;
+          }
+        }
+
+        hackingAttemptsLeft--;
+        if (hackingAttemptsLeft <= 0) {
+          await typeOutput(`All attempts exhausted! The passcode was: ${hackingPasscode}`, {styleClass:'cmd-error'});
+          gameMode = null;
+        } else {
+          await typeOutput(`Correct positions: ${correctPositions}, Correct chars: ${correctChars}. Attempts left: ${hackingAttemptsLeft}`, {styleClass:'cmd-warning'});
+        }
+      }
+
+      // Process guessnumber input
+      async function processGuessNumberInput(value) {
+        const guess = parseInt(value, 10);
+        if (isNaN(guess) || guess < 1 || guess > 100) {
+          await typeOutput("Invalid input. Please guess a number between 1 and 100.", {styleClass:'cmd-error'});
+          return;
+        }
+        guessNumberAttempts++;
+        if (guess === guessNumberTarget) {
+          await typeOutput(`You got it in ${guessNumberAttempts} tries! Congratulations!`, {styleClass:'cmd-success'});
+          gameMode = null;
+        } else if (guess < guessNumberTarget) {
+          await typeOutput("Too low. Try again.", {styleClass:'cmd-warning'});
+        } else {
+          await typeOutput("Too high. Try again.", {styleClass:'cmd-warning'});
+        }
+      }
+
+      // Handle input submit
+      async function onInputSubmit(inputValue) {
+        if (inputLocked) return;
+
+        if (loginStep > 0) {
+          // Login sequence
+          await processLoginStep(inputValue);
+          return;
+        }
+
+        if (passwordMode) {
+          // Hide actual password input, but here we treat whole value as password
+          // Because input is normal text input with 'password' style class (masked by CSS spacing)
+          // We'll just treat it normally
+          return;
+        }
+
+        if (gameMode === 'guessnumber') {
+          if (inputValue.toLowerCase() === 'exit') {
+            await typeOutput("Exiting guessnumber game.", {styleClass:'cmd-info'});
+            gameMode = null;
+            return;
+          }
+          await processGuessNumberInput(inputValue);
+          return;
+        }
+
+        if (gameMode === 'hacking') {
+          if (inputValue.toLowerCase() === 'exit') {
+            await typeOutput("Exiting hacking game.", {styleClass:'cmd-info'});
+            gameMode = null;
+            return;
+          }
+          await processHackingInput(inputValue);
+          return;
+        }
+
+        if (chatMode) {
+          await digitReply(inputValue);
+          return;
+        }
+
+        // Regular command processing
+        if (!inputValue) return;
+
+        let parts = inputValue.trim().split(/\s+/);
+        let cmd = parts[0].toLowerCase();
+        let args = parts.slice(1);
+
+        if (commands[cmd]) {
+          await commands[cmd](args);
+        } else {
+          await typeOutput(`Unknown command '${cmd}'. Type "help" for commands.`, {styleClass:'cmd-error'});
+          playSound(soundError);
+        }
+      }
+
+      // Initialize terminal
+      function init() {
+        showBanner();
+        clearOutput();
+
+        // Welcome message
+        typeOutput("NEXUS CORE v0.2 INITIALIZED", {styleClass:'cmd-success'});
+        typeOutput('Type "help" for available commands.', {styleClass:'sys-msg'});
+
+        cmdline.focus();
+      }
+
+      // Command history navigation
+      function historyPrev() {
+        if (histPos > 0) {
+          histPos--;
+          cmdline.value = history[histPos] || '';
+        }
+      }
+      function historyNext() {
+        if (histPos < history.length - 1) {
+          histPos++;
+          cmdline.value = history[histPos] || '';
+        } else {
+          histPos = history.length;
+          cmdline.value = '';
+        }
+      }
+
+      // Unlock input (if locked)
+      function unlockInput() {
+        inputLocked = false;
+        cmdline.disabled = false;
+        cmdline.focus();
+      }
+
+      // Lock input (to prevent typing)
+      function lockInput() {
+        inputLocked = true;
+        cmdline.disabled = true;
+      }
+
+      // Handle password masking logic (optional)
+      // For demo, CSS spacing effect is used
+
+      // Event listeners
+
+      cmdline.addEventListener('keydown', async (e) => {
+        if (inputLocked) {
+          e.preventDefault();
+          return;
+        }
+
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const val = cmdline.value;
+          if (val.trim()) {
+            history.push(val);
+            histPos = history.length;
+            appendRaw(`\n> ${val}`);
+            cmdline.value = '';
+            await onInputSubmit(val);
+          }
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          historyPrev();
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          historyNext();
+        } else {
+          // Play key sound (throttle?)
+          playSound(soundKey);
+        }
+      });
+
+      // Prevent losing focus
+      terminal.addEventListener('click', () => {
+        if (!inputLocked) cmdline.focus();
+      });
+
+      // Initialize
+      init();
+
+    })();
   </script>
 </body>
 </html>
