@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>NEXUS CORE v0.2 - FULL TERMINAL EXPERIENCE</title>
+  <title>NEXUS CORE v0.3 - SYNTHWAVE TERMINAL OVERDRIVE</title>
   <style>
-    /* RESET */
+    /* RESET & BASE */
     * {
       margin: 0; padding: 0; box-sizing: border-box;
     }
     html, body {
       height: 100%;
-      background: black;
+      background: #0a001f;
       color: #00ffcc;
       font-family: 'Courier New', Courier, monospace;
       overflow: hidden;
@@ -19,111 +19,161 @@
     }
     body {
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
       padding: 20px;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      background:
+        linear-gradient(180deg, #0a001f 0%, #050011 100%);
+      position: relative;
     }
 
-    /* TERMINAL WRAPPER */
+    /* SCANLINE & GLITCH BACKGROUND */
+    body::before {
+      content: "";
+      pointer-events: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          rgba(0, 255, 204, 0.05),
+          rgba(0, 255, 204, 0.05) 1px,
+          transparent 2px,
+          transparent 3px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          rgba(255, 0, 255, 0.02),
+          rgba(255, 0, 255, 0.02) 2px,
+          transparent 3px,
+          transparent 4px
+        );
+      z-index: 0;
+      animation: scanlineShift 10s linear infinite;
+      mix-blend-mode: screen;
+    }
+    @keyframes scanlineShift {
+      0% { background-position: 0 0, 0 0; }
+      100% { background-position: 0 100%, 100% 0; }
+    }
+
+    /* TERMINAL CONTAINER */
     #terminal {
-      background: #000000dd;
-      max-width: 960px;
-      width: 100%;
+      position: relative;
+      z-index: 1;
+      width: 960px;
+      max-width: 96vw;
       height: 80vh;
-      border: 2px solid #00ffcc;
+      background: #0c002f;
+      border: 3px solid #00ffcc;
+      border-radius: 12px;
       box-shadow:
-        0 0 5px #00ffcc99,
-        0 0 15px #00ffccaa,
-        inset 0 0 20px #00ffcc66;
-      padding: 20px 25px 40px 25px;
+        0 0 20px #00ffdccc,
+        inset 0 0 40px #00ffccaa;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      position: relative;
-      border-radius: 8px;
     }
 
-    /* ASCII BANNER */
+    /* NEON GLOW HEADER BANNER */
     #ascii-banner {
       white-space: pre;
-      color: #ff00ff;
-      font-size: 14px;
-      text-shadow:
-        0 0 10px #ff00ffcc,
-        0 0 30px #ff00ff88;
-      user-select: text;
       text-align: center;
-      margin-bottom: 15px;
-      letter-spacing: 1.2px;
+      font-size: 14px;
       line-height: 1.1em;
+      letter-spacing: 1.3px;
       font-weight: 900;
+      color: #ff00ff;
+      text-shadow:
+        0 0 12px #ff00ffcc,
+        0 0 32px #ff00ffcc,
+        0 0 52px #ff00ffcc,
+        0 0 80px #ff00ffaa;
+      user-select: text;
+      padding: 20px 10px 10px;
+      animation: neonPulse 2.2s ease-in-out infinite alternate;
     }
-    /* Animated flicker glow */
-    .glow-flicker {
-      animation: flickerGlow 1.5s infinite alternate;
-    }
-    @keyframes flickerGlow {
-      0% { text-shadow: 0 0 10px #ff00ffcc, 0 0 30px #ff00ff88; }
-      50% { text-shadow: 0 0 20px #ff00ffaa, 0 0 60px #ff00ffbb; }
-      100% { text-shadow: 0 0 10px #ff00ffcc, 0 0 30px #ff00ff88; }
+    @keyframes neonPulse {
+      0%, 100% {
+        text-shadow:
+          0 0 12px #ff00ffcc,
+          0 0 32px #ff00ffcc,
+          0 0 52px #ff00ffcc,
+          0 0 80px #ff00ffaa;
+      }
+      50% {
+        text-shadow:
+          0 0 20px #ff66ffcc,
+          0 0 40px #ff66ffcc,
+          0 0 60px #ff66ffcc,
+          0 0 100px #ff66ffaa;
+      }
     }
 
-    /* OUTPUT CONTAINER */
+    /* OUTPUT AREA */
     #output {
       flex: 1;
-      overflow-y: auto;
-      background: #000000dd;
-      padding: 10px 20px;
-      border: 1px solid #00ffcc;
-      box-shadow: inset 0 0 8px #00ffcc44;
-      font-size: 1em;
-      line-height: 1.3em;
-      white-space: pre-wrap;
-      word-wrap: break-word;
+      padding: 20px 30px;
+      font-size: 1.1em;
+      line-height: 1.35em;
       color: #00ffcc;
+      background:
+        radial-gradient(ellipse at center, #00100f, #000000);
+      overflow-y: auto;
+      border-top: 1px solid #00ffcc55;
+      border-bottom: 1px solid #00ffcc55;
+      box-shadow: inset 0 0 20px #00ffcc55;
       user-select: text;
-      border-radius: 5px;
-      margin-bottom: 10px;
-      scrollbar-width: thin;
-      scrollbar-color: #00ffcc33 transparent;
+      text-shadow:
+        0 0 3px #00ffccaa,
+        0 0 6px #00ffccbb;
     }
     #output::-webkit-scrollbar {
-      width: 10px;
+      width: 14px;
     }
     #output::-webkit-scrollbar-track {
-      background: transparent;
+      background: #000015;
     }
     #output::-webkit-scrollbar-thumb {
-      background-color: #00ffcc55;
-      border-radius: 5px;
-      border: 2px solid transparent;
-      background-clip: content-box;
+      background: linear-gradient(180deg, #ff00ffcc, #00ffccdd);
+      border-radius: 8px;
+      border: 3px solid #000015;
     }
 
     /* INPUT LINE */
     #input-line {
+      padding: 15px 30px;
       display: flex;
       align-items: center;
-      font-size: 1.1em;
+      font-size: 1.3em;
       color: #00ffcc;
-      border-top: 1px solid #00ffcc33;
-      padding-top: 5px;
+      font-weight: 700;
+      background:
+        linear-gradient(90deg, #001111, #002222);
+      border-top: 2px solid #00ffcc;
       user-select: none;
+      box-shadow:
+        inset 0 0 30px #00ffcc88;
+      position: relative;
+      z-index: 10;
     }
+
     #prompt {
       flex-shrink: 0;
-      margin-right: 10px;
-      font-weight: bold;
+      margin-right: 15px;
+      animation: promptBlink 1.5s steps(1) infinite;
       user-select: none;
-      animation: promptBlink 1.2s steps(1) infinite;
+      color: #ff66ff;
+      text-shadow: 0 0 15px #ff66ffbb;
     }
     @keyframes promptBlink {
       0%, 50% { opacity: 1; }
       51%, 100% { opacity: 0; }
     }
+
     #cmdline {
       flex: 1;
       background: transparent;
@@ -131,112 +181,189 @@
       outline: none;
       color: #00ffcc;
       font-family: inherit;
-      font-size: 1em;
-      caret-color: #00ffcc;
+      font-size: 1.2em;
+      caret-color: #ff66ff;
       user-select: text;
+      text-shadow:
+        0 0 5px #00ffccaa;
     }
-
-    /* PLACEHOLDER for hidden password input */
     #cmdline.password {
       letter-spacing: 0.3em;
-      font-weight: bold;
+      font-weight: 900;
     }
 
-    /* SYSTEM MESSAGES */
+    /* COMMAND OUTPUT COLORS */
     .sys-msg {
-      color: #8888ffaa;
+      color: #8888ffcc;
       font-style: italic;
       margin-bottom: 6px;
     }
-
-    /* COMMANDS OUTPUT COLORS */
     .cmd-ok {
       color: #00ffcc;
+      text-shadow: 0 0 10px #00ffccbb;
     }
     .cmd-error {
-      color: #ff4444;
+      color: #ff4466;
+      text-shadow: 0 0 10px #ff4466bb;
     }
     .cmd-warning {
       color: #ffcc00;
+      text-shadow: 0 0 10px #ffcc00bb;
     }
     .cmd-info {
       color: #66ccff;
+      text-shadow: 0 0 10px #66ccffbb;
     }
     .cmd-success {
       color: #66ff99;
+      text-shadow: 0 0 10px #66ff99bb;
     }
-
-    /* LINKS */
-    a.cmd-link {
-      color: #00ffff;
-      text-decoration: underline;
+    .cmd-joke {
+      color: #ff66cc;
+      font-weight: 700;
+      text-shadow: 0 0 12px #ff66ccbb;
+    }
+    .cmd-link {
+      color: #ff55ff;
       cursor: pointer;
+      text-decoration: underline;
+      user-select: text;
     }
 
     /* PROGRESS BAR */
     .progress-bar {
       position: relative;
       width: 100%;
-      height: 16px;
-      background-color: #002222;
-      border-radius: 8px;
+      height: 18px;
+      background-color: #003322;
+      border-radius: 9px;
       overflow: hidden;
-      margin: 8px 0 16px 0;
-      box-shadow: inset 0 0 5px #00ffcc44;
+      margin: 15px 0 22px 0;
+      box-shadow: inset 0 0 6px #00ffcc55;
     }
     .progress-bar > div {
-      background: linear-gradient(90deg, #00ffcc, #00cc99);
+      background: linear-gradient(90deg, #ff00ff, #00ffff);
       height: 100%;
       width: 0%;
-      border-radius: 8px 0 0 8px;
-      transition: width 0.3s ease;
+      border-radius: 9px 0 0 9px;
       box-shadow:
-        0 0 8px #00ffccaa,
-        inset 0 0 6px #00ffcccc;
+        0 0 12px #ff00ffcc,
+        inset 0 0 8px #00ffffcc;
+      transition: width 0.35s ease;
     }
 
-    /* MINI GAMES */
+    /* BUTTON-LIKE LINKS */
+    .cmd-button {
+      display: inline-block;
+      padding: 6px 14px;
+      margin: 2px 6px;
+      border: 2px solid #ff33ff;
+      border-radius: 14px;
+      color: #ff33ff;
+      cursor: pointer;
+      user-select: none;
+      font-weight: 700;
+      text-shadow: 0 0 8px #ff33ffbb;
+      transition: all 0.25s ease;
+    }
+    .cmd-button:hover {
+      background: #ff33ff22;
+      box-shadow: 0 0 20px #ff33ffcc;
+      color: #ff66ff;
+      border-color: #ff66ff;
+    }
+
+    /* MINI GAMES AREA */
     .game-text {
       color: #ff66cc;
-      font-weight: 700;
+      font-weight: 900;
       margin-bottom: 10px;
+      text-shadow: 0 0 8px #ff66ccbb;
+    }
+
+    /* ASCII ART DISPLAY */
+    .ascii-art {
+      color: #ff33ffcc;
+      font-family: 'Courier New', Courier, monospace;
+      white-space: pre;
+      user-select: text;
+      margin: 10px 0 18px 0;
+      font-size: 14px;
+      text-shadow:
+        0 0 15px #ff33ffbb,
+        0 0 30px #ff33ffbb;
+    }
+
+    /* SYNTHWAVE ANIMATED NEON LINES */
+    #neon-lines {
+      pointer-events: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 0;
+      overflow: hidden;
+      mix-blend-mode: screen;
+    }
+    .neon-line {
+      position: absolute;
+      height: 1.5px;
+      background: linear-gradient(90deg, transparent, #ff00ffbb, #00ffffbb, transparent);
+      animation: neonMove 10s linear infinite;
+      filter: drop-shadow(0 0 6px #ff33ffbb);
+    }
+    @keyframes neonMove {
+      0% { transform: translateX(-110%); }
+      100% { transform: translateX(110%); }
     }
 
     /* RESPONSIVE */
-    @media (max-width: 700px) {
+    @media (max-width: 720px) {
       #terminal {
         height: 90vh;
         padding: 15px 15px 30px 15px;
       }
       #ascii-banner {
         font-size: 10px;
-        margin-bottom: 10px;
       }
       #input-line {
-        font-size: 1em;
+        font-size: 1.1em;
+        padding: 12px 15px;
       }
     }
+
   </style>
 </head>
 <body>
-  <div id="terminal" role="region" aria-label="NEXUS CORE Terminal Interface" tabindex="0">
-    <div id="ascii-banner" class="glow-flicker"></div>
+
+  <!-- Neon lines background -->
+  <div id="neon-lines"></div>
+
+  <div id="terminal" role="region" aria-label="NEXUS CORE Synthwave Terminal Interface" tabindex="0">
+    <div id="ascii-banner" aria-hidden="true"></div>
     <div id="output" aria-live="polite" aria-atomic="false"></div>
     <div id="input-line">
       <span id="prompt">&gt;</span>
-      <input type="text" id="cmdline" autocomplete="off" spellcheck="false" aria-label="Terminal command input" autofocus />
+      <input
+        type="text"
+        id="cmdline"
+        autocomplete="off"
+        spellcheck="false"
+        aria-label="Terminal command input"
+        autofocus
+      />
     </div>
   </div>
 
   <audio id="sound-key" src="https://cdn.jsdelivr.net/gh/jbrown/terminal-beep/beep1.mp3" preload="auto"></audio>
   <audio id="sound-success" src="https://cdn.jsdelivr.net/gh/jbrown/terminal-beep/success1.mp3" preload="auto"></audio>
   <audio id="sound-error" src="https://cdn.jsdelivr.net/gh/jbrown/terminal-beep/error1.mp3" preload="auto"></audio>
+  <audio id="sound-synthwave" loop src="https://cdn.jsdelivr.net/gh/freesoundorg/modern_synthwave_beat.mp3" preload="auto"></audio>
 
   <script>
     (() => {
       'use strict';
 
-      // ASCII banners (rotating)
+      // === VARIABLES & STATE ===
+
       const banners = [
 `███╗   ██╗███████╗██╗  ██╗██╗   ██╗███████╗    ██████╗ ██████╗ ██████╗ ███████╗
 ████╗  ██║██╔════╝╚██╗██╔╝██║   ██║██╔════╝   ██╔════╝ ██╔══██╗██╔══██╗██╔════╝
@@ -261,531 +388,1139 @@
 `
       ];
 
+      // SYNTHWAVE COLORS
+      const colors = {
+        neonPink: '#ff33ff',
+        neonCyan: '#00ffff',
+        neonGreen: '#00ffcc',
+        neonYellow: '#ffcc00',
+        neonRed: '#ff4466',
+        neonBlue: '#66ccff',
+        neonMagenta: '#ff66cc',
+        neonOrange: '#ff8833',
+        neonWhite: '#e0e0ff'
+      };
+
       const terminal = document.getElementById('terminal');
-      const asciiBanner = document.getElementById('ascii-banner');
       const output = document.getElementById('output');
       const cmdline = document.getElementById('cmdline');
-      const prompt = document.getElementById('prompt');
+      const asciiBanner = document.getElementById('ascii-banner');
+      const neonLines = document.getElementById('neon-lines');
 
-      // Sound elements
+      // AUDIO ELEMENTS
       const soundKey = document.getElementById('sound-key');
       const soundSuccess = document.getElementById('sound-success');
       const soundError = document.getElementById('sound-error');
+      const soundSynth = document.getElementById('sound-synthwave');
 
-      // Command history and pointer
-      const history = [];
-      let histPos = 0;
-
-      // State variables
-      let inputLocked = false;  // disables input during animations/prompts
-      let passwordMode = false;
-      let loginStep = 0;
+      // STATE
       let loggedIn = false;
-      let username = '';
-      let gameMode = null; // 'guessnumber' | 'hacking' | null
+      let username = "guest";
+      let inputLocked = false;
+      let passwordMode = false;
+      let loginStep = 0; // 0:none,1:username,2:password
+      let history = [];
+      let histPos = 0;
+      let gameMode = null; // null or game key string
+      let chatMode = false;
+      let passwordBuffer = "";
+
+      // Games states
       let guessNumberTarget = 0;
       let guessNumberAttempts = 0;
 
-      // AI Digit conversation context
-      const digitGreetings = [
-        "Heyo, choom. This is Digit v0.2.",
-        "Ready to ride or die — what's the next move?",
-        "> Hint: try typing \"ascii\" if you miss the vibe.",
-        "Ask me anything, or type 'exit' to leave chat mode."
-      ];
+      // Tic Tac Toe state
+      let tttBoard = Array(9).fill(null);
+      let tttPlayerTurn = 'X'; // User is X, AI is O
+      let tttActive = false;
 
-      // Output helpers
+      // Minesweeper state
+      let msGrid = [];
+      let msRows = 8;
+      let msCols = 8;
+      let msMines = 10;
+      let msRevealedCount = 0;
+      let msActive = false;
 
+      // Snake game state
+      let snakeInterval = null;
+      let snakeDir = 'right';
+      let snakePos = [];
+      let snakeFood = null;
+      let snakeScore = 0;
+      let snakeActive = false;
+      const snakeRows = 15;
+      const snakeCols = 30;
+
+      // Crypto miner simulator state
+      let minerActive = false;
+      let minerInterval = null;
+      let minerCoins = 0;
+
+      // Text adventure state
+      let textAdvActive = false;
+      let textAdvStep = 0;
+
+      // Uptime simulation
+      const systemStart = Date.now();
+
+      // === UTILS ===
+
+      // Append colored output line with optional class and delay (Promise)
+      function appendOutput(text = '', cls = '') {
+        return new Promise(resolve => {
+          const line = document.createElement('div');
+          line.className = cls;
+          line.textContent = text;
+          output.appendChild(line);
+          output.scrollTop = output.scrollHeight;
+          setTimeout(resolve, 10);
+        });
+      }
+
+      // Append multiple lines
+      async function appendLines(lines, cls = '') {
+        for (let line of lines) {
+          await appendOutput(line, cls);
+        }
+      }
+
+      // Clear output area
+      function clearOutput() {
+        output.innerHTML = '';
+      }
+
+      // Play sound
       function playSound(sound) {
         if (!sound) return;
         sound.currentTime = 0;
+        sound.volume = 0.15;
         sound.play().catch(() => {});
       }
 
-      // Append text with typing animation
-      async function typeOutput(text, opts = {}) {
-        const {
-          delay = 30,
-          newLine = true,
-          styleClass = '',
-          scroll = true
-        } = opts;
-
-        if (newLine) {
-          appendRaw('\n');
-        }
-        let span = document.createElement('span');
-        if (styleClass) span.className = styleClass;
-        output.appendChild(span);
-
-        for (let i = 0; i < text.length; i++) {
-          span.textContent += text[i];
-          if (scroll) output.scrollTop = output.scrollHeight;
-          await wait(delay);
-        }
-      }
-
-      // Append raw text without typing animation
-      function appendRaw(text) {
-        output.appendChild(document.createTextNode(text));
-        output.scrollTop = output.scrollHeight;
-      }
-
-      // Wait helper
+      // Sleep helper
       function wait(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+        return new Promise(r => setTimeout(r, ms));
       }
 
-      // Clear output but keep welcome message
-      function clearOutput() {
-        output.textContent = 'Initializing NEXUS CORE...\nType "help" for available commands.\n';
-      }
-
-      // Display loading progress bar
-      async function showProgressBar(duration = 2000) {
-        const bar = document.createElement('div');
-        bar.className = 'progress-bar';
-        const progress = document.createElement('div');
-        bar.appendChild(progress);
-        output.appendChild(bar);
-        output.scrollTop = output.scrollHeight;
-
-        const steps = 40;
-        const stepTime = duration / steps;
-        for(let i = 0; i <= steps; i++) {
-          progress.style.width = (i / steps) * 100 + '%';
-          await wait(stepTime);
+      // Neon lines generator for background
+      function spawnNeonLines(count = 15) {
+        neonLines.innerHTML = '';
+        for(let i=0; i<count; i++) {
+          const line = document.createElement('div');
+          line.classList.add('neon-line');
+          line.style.top = `${Math.random() * 100}%`;
+          line.style.left = `-${Math.random() * 110}%`;
+          line.style.width = `${20 + Math.random() * 80}%`;
+          line.style.animationDuration = `${5 + Math.random() * 15}s`;
+          neonLines.appendChild(line);
         }
-        bar.remove();
       }
 
-      // Show banner (rotate through banners)
+      // Show banner (random)
       function showBanner() {
-        let index = Math.floor(Math.random() * banners.length);
-        asciiBanner.textContent = banners[index];
+        asciiBanner.textContent = banners[Math.floor(Math.random() * banners.length)];
       }
 
-      // Commands object with async support
+      // Format uptime (ms)
+      function formatUptime(ms) {
+        let seconds = Math.floor(ms/1000);
+        let minutes = Math.floor(seconds/60);
+        let hours = Math.floor(minutes/60);
+        let days = Math.floor(hours/24);
+        seconds %= 60; minutes %= 60; hours %= 24;
+        return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+      }
+
+      // Validate username
+      function validateUsername(u) {
+        return /^[a-zA-Z0-9_\-]{3,15}$/.test(u);
+      }
+
+      // === COMMANDS ===
+
+      // Handlers must be async for await delays
+
       const commands = {
         help: async () => {
-          const helpText = `Available Commands:
-  help         - Show this menu
-  whoami       - Identify yourself
-  connect      - Simulate network connection
-  clear        - Clear terminal screen
-  digit        - Enter AI chat mode
-  ascii        - Show the banner again
-  login        - Secure login prompt
-  guessnumber  - Play a number guessing game
-  hacking      - Play a hacking minigame
-  secret       - Reveal a secret (if you dare)
-  soundtest    - Play terminal sounds
-  echo         - Repeat your input
-  exit         - Exit current mode (chat/game)
-`;
-          await typeOutput(helpText, {styleClass:'cmd-info'});
+          const cmds = [
+            "help                  - Show this menu",
+            "whoami                - Show current user info",
+            "login                 - Login to unlock secret commands",
+            "logout                - Logout current user",
+            "clear                 - Clear terminal",
+            "banner                - Show random banner",
+            "ascii                 - Show current banner",
+            "date                  - Show current date/time",
+            "uptime                - Show system uptime",
+            "echo [text]           - Print text",
+            "calc [expr]           - Simple calculator (e.g. calc 3+5*2)",
+            "joke                  - Tell a synthwave hacker joke",
+            "fortune               - Show a hacker fortune",
+            "connect               - Simulate network connection",
+            "ping [host]           - Ping a host",
+            "trace [host]          - Trace route to a host",
+            "scan                  - Simulate network scan",
+            "whois [host]          - Whois lookup",
+            "guessnumber           - Play number guessing game",
+            "tictactoe             - Play Tic Tac Toe game",
+            "snake                 - Play Snake game",
+            "minesweeper           - Play Minesweeper game",
+            "crypto-mine           - Start/stop crypto miner",
+            "textadv               - Start text adventure game",
+            "digit                 - Talk to Digit AI",
+            "exit                  - Exit game/chat mode",
+            "sound                 - Toggle synthwave soundtrack",
+            "theme [name]          - Change terminal theme (dark/neon/light)",
+            "secret                - Show secret (login required)",
+            "alias                 - List command aliases",
+            "help2                 - Secret extended help (login required)",
+            "randomcolor           - Show a random neon color",
+            "asciiart              - Show random synthwave ASCII art",
+            "sysinfo               - Show system info",
+            "files                 - List mock files",
+            "open [filename]       - Open mock file",
+          ];
+          await appendLines(cmds, 'sys-msg');
         },
+
+        help2: async () => {
+          if (!loggedIn) {
+            await appendOutput("Access denied. Please login first.", 'cmd-error');
+            return;
+          }
+          const secretCmds = [
+            "exec [command]         - Execute hidden system command",
+            "hacknet                - Launch HackNet simulator",
+            "backdoor               - Install backdoor (mock)",
+            "encrypt [text]         - Encrypt text",
+            "decrypt [text]         - Decrypt text",
+            "sysreset               - Reset system (mock)",
+            "selfdestruct           - Self-destruct terminal (mock)",
+            "sudo [command]         - Run command as admin",
+          ];
+          await appendLines(secretCmds, 'cmd-warning');
+        },
+
         whoami: async () => {
-          let text = loggedIn
-            ? `user: ${username}\nrank: sysadmin\naccess_level: 0x99`
-            : `user: guest\nrank: outsider\naccess_level: 0x00`;
-          await typeOutput(text, {styleClass: 'cmd-ok'});
+          const role = loggedIn ? "operator" : "outsider";
+          const level = loggedIn ? "0xFF" : "0x00";
+          await appendOutput(`user: ${username}`, 'cmd-ok');
+          await appendOutput(`role: ${role}`, 'cmd-ok');
+          await appendOutput(`access_level: ${level}`, 'cmd-ok');
         },
-        connect: async () => {
-          await typeOutput("Attempting connection...", {styleClass:'cmd-info'});
-          await showProgressBar(3000);
-          await typeOutput("Establishing secure link...", {styleClass:'cmd-info'});
-          await showProgressBar(2000);
-          await typeOutput("Link stabilized.", {styleClass:'cmd-success'});
-          await typeOutput("NEXUS CORE uplink successful.", {styleClass:'cmd-success'});
+
+        login: async () => {
+          if (loggedIn) {
+            await appendOutput("Already logged in.", 'cmd-warning');
+            return;
+          }
+          loginStep = 1;
+          passwordMode = false;
+          passwordBuffer = "";
+          await appendOutput("Login initiated. Enter username:", 'cmd-info');
         },
+
+        logout: async () => {
+          if (!loggedIn) {
+            await appendOutput("Not logged in.", 'cmd-warning');
+            return;
+          }
+          loggedIn = false;
+          username = "guest";
+          await appendOutput("Logged out. Bye!", 'cmd-info');
+        },
+
         clear: async () => {
           clearOutput();
         },
-        digit: async () => {
-          await typeOutput("Entering Digit AI chat mode. Type 'exit' to quit.", {styleClass:'cmd-info'});
-          await typeOutput(digitGreetings.join('\n'), {styleClass:'cmd-ok'});
-          enterChatMode();
+
+        banner: async () => {
+          showBanner();
+          await appendOutput("Banner refreshed.", 'cmd-info');
         },
+
         ascii: async () => {
-          await typeOutput(banners[0], {styleClass:'cmd-ok'});
+          await appendOutput(asciiBanner.textContent, 'ascii-art');
         },
-        login: async () => {
-          if (loggedIn) {
-            await typeOutput("Already logged in as " + username + ".", {styleClass:'cmd-warning'});
-            return;
-          }
-          await typeOutput("Secure login activated. Enter username:", {styleClass:'cmd-info'});
-          inputLocked = true;
-          passwordMode = false;
-          loginStep = 1;
-          cmdline.value = '';
-          cmdline.classList.remove('password');
-          cmdline.focus();
-          unlockInput();
+
+        date: async () => {
+          await appendOutput(new Date().toString(), 'cmd-info');
         },
-        guessnumber: async () => {
-          if (gameMode) {
-            await typeOutput("You're already in a game. Type 'exit' to quit current game.", {styleClass:'cmd-warning'});
-            return;
-          }
-          await typeOutput("Guess the number between 1 and 100!", {styleClass:'game-text'});
-          guessNumberTarget = Math.floor(Math.random() * 100) + 1;
-          guessNumberAttempts = 0;
-          gameMode = 'guessnumber';
+
+        uptime: async () => {
+          const uptimeStr = formatUptime(Date.now() - systemStart);
+          await appendOutput(`System uptime: ${uptimeStr}`, 'cmd-info');
         },
-        hacking: async () => {
-          if (gameMode) {
-            await typeOutput("You're already in a game. Type 'exit' to quit current game.", {styleClass:'cmd-warning'});
-            return;
-          }
-          await typeOutput("Hacking minigame activated.\nTry to guess the secret passcode in 6 tries.", {styleClass:'game-text'});
-          startHackingMinigame();
-          gameMode = 'hacking';
-        },
-        secret: async () => {
-          if (!loggedIn) {
-            await typeOutput("Access denied. Login required.", {styleClass:'cmd-error'});
-            return;
-          }
-          await typeOutput("The secret code is: 42. The answer to everything.", {styleClass:'cmd-success'});
-        },
-        soundtest: async () => {
-          playSound(soundKey);
-          await wait(500);
-          playSound(soundSuccess);
-          await wait(500);
-          playSound(soundError);
-          await wait(500);
-          await typeOutput("Terminal sounds played.", {styleClass:'cmd-info'});
-        },
+
         echo: async (args) => {
           if (!args.length) {
-            await typeOutput("Usage: echo [text]", {styleClass:'cmd-warning'});
+            await appendOutput("Usage: echo [text]", 'cmd-warning');
             return;
           }
-          await typeOutput(args.join(' '), {styleClass:'cmd-ok'});
+          await appendOutput(args.join(' '), 'cmd-ok');
         },
+
+        calc: async (args) => {
+          if (!args.length) {
+            await appendOutput("Usage: calc [expression]", 'cmd-warning');
+            return;
+          }
+          try {
+            // Sanitize simple math expression
+            const expr = args.join('').replace(/[^-()\d/*+.]/g, '');
+            const val = Function(`"use strict";return (${expr})`)();
+            if (val === undefined) throw new Error("Invalid");
+            await appendOutput(`${expr} = ${val}`, 'cmd-ok');
+          } catch {
+            await appendOutput("Invalid expression.", 'cmd-error');
+          }
+        },
+
+        joke: async () => {
+          const jokes = [
+            "Why did the hacker break up with the internet? Too many cookies.",
+            "There are 10 types of people: those who understand binary and those who don't.",
+            "Hacking is like magic, but with more caffeine.",
+            "I'd tell you a UDP joke, but you might not get it.",
+            "Debugging: Being the detective in a crime movie where you are also the murderer.",
+          ];
+          const joke = jokes[Math.floor(Math.random() * jokes.length)];
+          await appendOutput(joke, 'cmd-joke');
+        },
+
+        fortune: async () => {
+          const fortunes = [
+            "You will hack the planet today.",
+            "New code will bring unexpected powers.",
+            "Beware the off-by-one error lurking in shadows.",
+            "Your digital soul is glowing neon.",
+            "Keep your firewall strong and your coffee stronger.",
+          ];
+          const fortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+          await appendOutput(fortune, 'cmd-info');
+        },
+
+        connect: async () => {
+          await appendOutput("Attempting network connection...", 'cmd-info');
+          await wait(800);
+          await appendOutput("Secure link established.", 'cmd-success');
+          await wait(500);
+          await appendOutput("Uplink active. Welcome to the grid.", 'cmd-success');
+        },
+
+        ping: async (args) => {
+          if (!args.length) {
+            await appendOutput("Usage: ping [host]", 'cmd-warning');
+            return;
+          }
+          await appendOutput(`Pinging ${args[0]} with 32 bytes of data:`, 'cmd-info');
+          for (let i=1; i<=4; i++) {
+            await wait(400);
+            const ms = (20 + Math.random()*50).toFixed(1);
+            await appendOutput(`Reply from ${args[0]}: bytes=32 time=${ms}ms TTL=64`, 'cmd-ok');
+          }
+          await appendOutput(`Ping statistics for ${args[0]}: Packets: Sent = 4, Received = 4, Lost = 0 (0% loss)`, 'cmd-info');
+        },
+
+        trace: async (args) => {
+          if (!args.length) {
+            await appendOutput("Usage: trace [host]", 'cmd-warning');
+            return;
+          }
+          await appendOutput(`Tracing route to ${args[0]}:`, 'cmd-info');
+          for (let i=1; i<=10; i++) {
+            await wait(350);
+            const ms = (15 + Math.random()*40).toFixed(1);
+            const hopIP = `192.168.0.${i}`;
+            await appendOutput(`${i}\t${ms} ms\t${ms} ms\t${ms} ms\t${hopIP}`, 'cmd-ok');
+          }
+          await appendOutput(`Trace complete.`, 'cmd-success');
+        },
+
+        scan: async () => {
+          await appendOutput("Scanning network for active hosts...", 'cmd-info');
+          for (let i=1; i<=5; i++) {
+            await wait(600);
+            const ip = `192.168.1.${Math.floor(Math.random()*255)}`;
+            await appendOutput(`Host found: ${ip} (open port 22, 80, 443)`, 'cmd-success');
+          }
+          await appendOutput("Scan complete.", 'cmd-info');
+        },
+
+        whois: async (args) => {
+          if (!args.length) {
+            await appendOutput("Usage: whois [host]", 'cmd-warning');
+            return;
+          }
+          await appendOutput(`Whois lookup for ${args[0]}:`, 'cmd-info');
+          await wait(700);
+          await appendOutput("Registrant: Cyberpunk Corp", 'cmd-ok');
+          await appendOutput("Location: Neon City, Cyberspace", 'cmd-ok');
+          await appendOutput("Contact: admin@" + args[0], 'cmd-ok');
+        },
+
+        guessnumber: async () => {
+          if (gameMode) {
+            await appendOutput("Already in a game. Type 'exit' to quit.", 'cmd-warning');
+            return;
+          }
+          guessNumberTarget = Math.floor(Math.random()*100)+1;
+          guessNumberAttempts = 0;
+          gameMode = 'guessnumber';
+          await appendOutput("Guess the number between 1 and 100!", 'game-text');
+          await appendOutput("Type your guess or 'exit' to quit.", 'sys-msg');
+        },
+
+        tictactoe: async () => {
+          if (gameMode) {
+            await appendOutput("Already in a game. Type 'exit' to quit.", 'cmd-warning');
+            return;
+          }
+          startTicTacToe();
+          gameMode = 'tictactoe';
+        },
+
+        snake: async () => {
+          if (gameMode) {
+            await appendOutput("Already in a game. Type 'exit' to quit.", 'cmd-warning');
+            return;
+          }
+          startSnakeGame();
+          gameMode = 'snake';
+        },
+
+        minesweeper: async () => {
+          if (gameMode) {
+            await appendOutput("Already in a game. Type 'exit' to quit.", 'cmd-warning');
+            return;
+          }
+          startMinesweeper();
+          gameMode = 'minesweeper';
+        },
+
+        'crypto-mine': async () => {
+          if (minerActive) {
+            minerActive = false;
+            clearInterval(minerInterval);
+            await appendOutput(`Crypto miner stopped. Total coins mined: ${minerCoins}`, 'cmd-info');
+          } else {
+            minerActive = true;
+            minerCoins = 0;
+            minerInterval = setInterval(() => {
+              minerCoins++;
+              appendOutput(`Mining... coins: ${minerCoins}`, 'cmd-info');
+            }, 3500);
+            await appendOutput("Crypto miner started. Mining coins every 3.5 seconds.", 'cmd-info');
+          }
+        },
+
+        textadv: async () => {
+          if (gameMode) {
+            await appendOutput("Already in a game or mode. Type 'exit' to quit.", 'cmd-warning');
+            return;
+          }
+          textAdvActive = true;
+          textAdvStep = 0;
+          gameMode = 'textadv';
+          await textAdventureStep(0);
+        },
+
+        digit: async () => {
+          if (chatMode) {
+            await appendOutput("Already in Digit AI chat mode. Type 'exit' to quit.", 'cmd-warning');
+            return;
+          }
+          chatMode = true;
+          await appendOutput("Digit AI v0.3 online. Say hi or type 'exit' to quit.", 'cmd-info');
+        },
+
         exit: async () => {
           if (gameMode || chatMode) {
-            await typeOutput("Exiting current mode...", {styleClass:'cmd-info'});
+            await appendOutput("Exiting current mode/game...", 'cmd-info');
             gameMode = null;
             chatMode = false;
-            loginStep = 0;
-            passwordMode = false;
-            inputLocked = false;
-            cmdline.type = "text";
-            cmdline.classList.remove('password');
+            textAdvActive = false;
+            tttActive = false;
+            snakeActive = false;
+            msActive = false;
+            minerActive = false;
+            if (minerInterval) clearInterval(minerInterval);
           } else {
-            await typeOutput("Nothing to exit.", {styleClass:'cmd-warning'});
+            await appendOutput("Nothing to exit.", 'cmd-warning');
+          }
+        },
+
+        sound: async () => {
+          if (soundSynth.paused) {
+            soundSynth.volume = 0.12;
+            await soundSynth.play();
+            await appendOutput("Synthwave soundtrack playing. Type 'sound' to toggle off.", 'cmd-info');
+          } else {
+            soundSynth.pause();
+            await appendOutput("Synthwave soundtrack stopped.", 'cmd-info');
+          }
+        },
+
+        theme: async (args) => {
+          if (!args.length) {
+            await appendOutput("Themes available: dark, neon, light", 'cmd-info');
+            return;
+          }
+          const theme = args[0].toLowerCase();
+          if (theme === 'dark') {
+            document.body.style.background = '#0a001f';
+            output.style.background = 'radial-gradient(ellipse at center, #00100f, #000000)';
+            await appendOutput("Theme set to dark.", 'cmd-success');
+          } else if (theme === 'neon') {
+            document.body.style.background = 'linear-gradient(135deg, #ff00ff, #00ffff)';
+            output.style.background = 'radial-gradient(ellipse at center, #330033, #000000)';
+            await appendOutput("Theme set to neon.", 'cmd-success');
+          } else if (theme === 'light') {
+            document.body.style.background = '#eee';
+            output.style.background = '#fff';
+            output.style.color = '#222';
+            await appendOutput("Theme set to light. Warning: synthwave effects disabled.", 'cmd-warning');
+          } else {
+            await appendOutput("Unknown theme. Available: dark, neon, light", 'cmd-warning');
+          }
+        },
+
+        secret: async () => {
+          if (!loggedIn) {
+            await appendOutput("Access denied. Login first.", 'cmd-error');
+            return;
+          }
+          await appendOutput("Access granted. The secret is: Never trust a closed source!", 'cmd-success');
+        },
+
+        alias: async () => {
+          await appendOutput("Available aliases:", 'cmd-info');
+          await appendOutput("ls -> files", 'cmd-info');
+          await appendOutput("cat -> open", 'cmd-info');
+          await appendOutput("rm -> delete (mock)", 'cmd-info');
+        },
+
+        randomcolor: async () => {
+          const neonColors = Object.values(colors);
+          const c = neonColors[Math.floor(Math.random() * neonColors.length)];
+          await appendOutput(`Random neon color: %c${c}`, '');
+        },
+
+        asciiart: async () => {
+          const arts = [
+`    .-'''-. 
+   '   _    \\
+ /   /` '.   \\
+.   |     \\  '
+|   '      |  '
+\\    \\     / /
+ \`-.   \` ..' /
+    '-...-'`
+          ];
+          await appendOutput(arts[Math.floor(Math.random() * arts.length)], 'ascii-art');
+        },
+
+        sysinfo: async () => {
+          await appendOutput(`NEXUS CORE Terminal v0.3`, 'cmd-info');
+          await appendOutput(`User: ${username}`, 'cmd-info');
+          await appendOutput(`Logged in: ${loggedIn}`, 'cmd-info');
+          await appendOutput(`Uptime: ${formatUptime(Date.now() - systemStart)}`, 'cmd-info');
+          await appendOutput(`Games active: ${gameMode || "none"}`, 'cmd-info');
+          await appendOutput(`Soundtrack: ${soundSynth.paused ? "off" : "on"}`, 'cmd-info');
+        },
+
+        files: async () => {
+          await appendOutput("root:", 'cmd-info');
+          await appendOutput("- readme.txt", 'cmd-ok');
+          await appendOutput("- secrets.log (locked)", 'cmd-warning');
+          await appendOutput("- config.cfg", 'cmd-ok');
+          await appendOutput("- hacktool.exe (mock)", 'cmd-ok');
+        },
+
+        open: async (args) => {
+          if (!args.length) {
+            await appendOutput("Usage: open [filename]", 'cmd-warning');
+            return;
+          }
+          const file = args[0].toLowerCase();
+          switch(file) {
+            case 'readme.txt':
+              await appendLines([
+                "NEXUS CORE Terminal",
+                "Version 0.3 - Synthwave Edition",
+                "Use 'help' to list commands.",
+                "Have fun hacking the matrix."
+              ]);
+              break;
+            case 'secrets.log':
+              if (!loggedIn) {
+                await appendOutput("Access denied. Login to view secrets.log", 'cmd-error');
+                return;
+              }
+              await appendLines([
+                "Top Secret Hack Logs:",
+                "01-07-2025: Breached megacorp mainframe.",
+                "02-07-2025: Extracted encrypted keys.",
+                "03-07-2025: Avoided trace by proxy.",
+                "04-07-2025: Mission success."
+              ], 'cmd-warning');
+              break;
+            case 'config.cfg':
+              await appendLines([
+                "theme=neon",
+                "soundtrack=enabled",
+                "username=" + username,
+                "auto-login=false"
+              ]);
+              break;
+            case 'hacktool.exe':
+              await appendOutput("Running hacktool.exe ... just kidding. This is a mock file.", 'cmd-info');
+              break;
+            default:
+              await appendOutput(`File not found: ${file}`, 'cmd-error');
           }
         }
       };
 
-      // Chat mode flag and simple AI
-      let chatMode = false;
+      // === GAMING LOGIC ===
 
-      function enterChatMode() {
-        chatMode = true;
-        inputLocked = false;
+      async function startTicTacToe() {
+        tttBoard.fill(null);
+        tttPlayerTurn = 'X';
+        tttActive = true;
+        await appendOutput("Tic Tac Toe started! You are X.", 'game-text');
+        printTTTBoard();
+        await appendOutput("Type a number 1-9 to place your X, 'exit' to quit.", 'sys-msg');
       }
 
-      // Minimal Digit AI reply generator (simple pattern matching)
-      async function digitReply(input) {
-        input = input.toLowerCase();
+      async function printTTTBoard() {
+        const display = tttBoard.map(c => c ? c : ' ');
+        let boardStr =
+          `\n${display[0]} | ${display[1]} | ${display[2]}\n` +
+          `---------\n` +
+          `${display[3]} | ${display[4]} | ${display[5]}\n` +
+          `---------\n` +
+          `${display[6]} | ${display[7]} | ${display[8]}\n`;
+        await appendOutput(boardStr, 'ascii-art');
+      }
 
-        if (input === 'exit') {
+      function checkTTTWin(player) {
+        const wins = [
+          [0,1,2],[3,4,5],[6,7,8], // rows
+          [0,3,6],[1,4,7],[2,5,8], // cols
+          [0,4,8],[2,4,6]          // diagonals
+        ];
+        return wins.some(line => line.every(idx => tttBoard[idx] === player));
+      }
+
+      function tttAIMove() {
+        // Simple AI: pick first free spot
+        const freeIdx = tttBoard.findIndex(c => !c);
+        if (freeIdx >= 0) {
+          tttBoard[freeIdx] = 'O';
+        }
+      }
+
+      async function handleTTTMove(input) {
+        const pos = parseInt(input) - 1;
+        if (pos < 0 || pos > 8 || tttBoard[pos]) {
+          await appendOutput("Invalid move. Choose empty slot 1-9.", 'cmd-warning');
+          return;
+        }
+        tttBoard[pos] = 'X';
+        if (checkTTTWin('X')) {
+          await printTTTBoard();
+          await appendOutput("You win! 🎉", 'cmd-success');
+          gameMode = null;
+          tttActive = false;
+          return;
+        }
+        tttAIMove();
+        if (checkTTTWin('O')) {
+          await printTTTBoard();
+          await appendOutput("AI wins! Try again.", 'cmd-error');
+          gameMode = null;
+          tttActive = false;
+          return;
+        }
+        await printTTTBoard();
+        await appendOutput("Your turn (1-9):", 'sys-msg');
+      }
+
+      // === Snake Game ===
+      // Simple text based snake in terminal
+
+      function drawSnakeGrid() {
+        let grid = '';
+        for (let r=0; r<snakeRows; r++) {
+          for (let c=0; c<snakeCols; c++) {
+            let pos = snakePos.find(p => p[0] === r && p[1] === c);
+            if (pos) {
+              grid += (pos === snakePos[0]) ? 'O' : 'o';
+            } else if (snakeFood[0] === r && snakeFood[1] === c) {
+              grid += '*';
+            } else {
+              grid += ' ';
+            }
+          }
+          grid += '\n';
+        }
+        return grid;
+      }
+
+      async function startSnakeGame() {
+        snakePos = [[Math.floor(snakeRows/2), Math.floor(snakeCols/2)]];
+        snakeFood = [Math.floor(Math.random()*snakeRows), Math.floor(Math.random()*snakeCols)];
+        snakeDir = 'right';
+        snakeScore = 0;
+        snakeActive = true;
+        await appendOutput("Snake game started! Use arrow keys or WASD to move. Type 'exit' to quit.", 'game-text');
+        await updateSnakeGame();
+        snakeInterval = setInterval(() => {
+          updateSnakeGame();
+        }, 300);
+      }
+
+      async function updateSnakeGame() {
+        if (!snakeActive) return;
+        const head = snakePos[0].slice();
+        switch(snakeDir) {
+          case 'up': head[0]--; break;
+          case 'down': head[0]++; break;
+          case 'left': head[1]--; break;
+          case 'right': head[1]++; break;
+        }
+        // Wrap around
+        if (head[0] < 0) head[0] = snakeRows - 1;
+        if (head[0] >= snakeRows) head[0] = 0;
+        if (head[1] < 0) head[1] = snakeCols - 1;
+        if (head[1] >= snakeCols) head[1] = 0;
+
+        // Collision with self
+        if (snakePos.some(p => p[0] === head[0] && p[1] === head[1])) {
+          snakeActive = false;
+          clearInterval(snakeInterval);
+          await appendOutput(`Game over! Score: ${snakeScore}`, 'cmd-error');
+          gameMode = null;
+          return;
+        }
+
+        snakePos.unshift(head);
+
+        if (head[0] === snakeFood[0] && head[1] === snakeFood[1]) {
+          snakeScore++;
+          snakeFood = [Math.floor(Math.random()*snakeRows), Math.floor(Math.random()*snakeCols)];
+        } else {
+          snakePos.pop();
+        }
+
+        await appendOutput(drawSnakeGrid(), 'ascii-art');
+        await appendOutput(`Score: ${snakeScore}`, 'cmd-info');
+      }
+
+      // Handle keyboard for snake controls
+      window.addEventListener('keydown', async (e) => {
+        if (gameMode !== 'snake') return;
+        switch(e.key) {
+          case 'ArrowUp': case 'w': case 'W':
+            if (snakeDir !== 'down') snakeDir = 'up';
+            break;
+          case 'ArrowDown': case 's': case 'S':
+            if (snakeDir !== 'up') snakeDir = 'down';
+            break;
+          case 'ArrowLeft': case 'a': case 'A':
+            if (snakeDir !== 'right') snakeDir = 'left';
+            break;
+          case 'ArrowRight': case 'd': case 'D':
+            if (snakeDir !== 'left') snakeDir = 'right';
+            break;
+        }
+      });
+
+      // === Minesweeper ===
+      // Simple minesweeper text display with reveal command
+
+      function generateMinesweeper() {
+        msGrid = [];
+        for (let r=0; r<msRows; r++) {
+          msGrid[r] = [];
+          for (let c=0; c<msCols; c++) {
+            msGrid[r][c] = {mine:false, revealed:false, flagged:false, neighborMines:0};
+          }
+        }
+        // Place mines
+        let placed = 0;
+        while(placed < msMines) {
+          const rr = Math.floor(Math.random()*msRows);
+          const cc = Math.floor(Math.random()*msCols);
+          if (!msGrid[rr][cc].mine) {
+            msGrid[rr][cc].mine = true;
+            placed++;
+          }
+        }
+        // Calculate neighbor mines
+        for (let r=0; r<msRows; r++) {
+          for (let c=0; c<msCols; c++) {
+            let count = 0;
+            for (let dr=-1; dr<=1; dr++) {
+              for (let dc=-1; dc<=1; dc++) {
+                const nr = r+dr, nc = c+dc;
+                if (nr>=0 && nr<msRows && nc>=0 && nc<msCols) {
+                  if (msGrid[nr][nc].mine) count++;
+                }
+              }
+            }
+            msGrid[r][c].neighborMines = count;
+          }
+        }
+        msRevealedCount = 0;
+      }
+
+      async function startMinesweeper() {
+        generateMinesweeper();
+        msActive = true;
+        await appendOutput("Minesweeper started! Type 'reveal r c' to reveal cell, 'exit' to quit.", 'game-text');
+        printMinesweeper();
+      }
+
+      async function printMinesweeper() {
+        let gridStr = '   ';
+        for(let c=0; c<msCols; c++) gridStr += (c<10 ? ' ' : '') + c + ' ';
+        gridStr += '\n';
+        for(let r=0; r<msRows; r++) {
+          gridStr += (r<10 ? ' ' : '') + r + ' ';
+          for(let c=0; c<msCols; c++) {
+            const cell = msGrid[r][c];
+            if (cell.revealed) {
+              if (cell.mine) gridStr += ' * ';
+              else gridStr += ` ${cell.neighborMines} `;
+            } else {
+              gridStr += ' # ';
+            }
+          }
+          gridStr += '\n';
+        }
+        await appendOutput(gridStr, 'ascii-art');
+      }
+
+      async function revealCell(r, c) {
+        if (r<0 || r>=msRows || c<0 || c>=msCols) {
+          await appendOutput("Invalid cell coordinates.", 'cmd-warning');
+          return;
+        }
+        if (msGrid[r][c].revealed) {
+          await appendOutput("Cell already revealed.", 'cmd-warning');
+          return;
+        }
+        msGrid[r][c].revealed = true;
+        msRevealedCount++;
+        if (msGrid[r][c].mine) {
+          await appendOutput("Boom! You hit a mine. Game over.", 'cmd-error');
+          msActive = false;
+          gameMode = null;
+          printMinesweeper();
+          return;
+        }
+        // Auto reveal neighbors if zero mines
+        if (msGrid[r][c].neighborMines === 0) {
+          for(let dr=-1; dr<=1; dr++) {
+            for(let dc=-1; dc<=1; dc++) {
+              let nr = r+dr, nc = c+dc;
+              if (nr>=0 && nr<msRows && nc>=0 && nc<msCols) {
+                if (!msGrid[nr][nc].revealed) {
+                  msGrid[nr][nc].revealed = true;
+                  msRevealedCount++;
+                }
+              }
+            }
+          }
+        }
+        if (msRevealedCount >= msRows*msCols - msMines) {
+          await appendOutput("Congratulations! You cleared the minefield!", 'cmd-success');
+          msActive = false;
+          gameMode = null;
+          printMinesweeper();
+          return;
+        }
+        printMinesweeper();
+      }
+
+      // === Text Adventure ===
+      // Simple linear text adventure
+
+      async function textAdventureStep(step) {
+        switch(step) {
+          case 0:
+            await appendOutput("You awaken in a dark cyberroom, neon lights flicker.", 'game-text');
+            await appendOutput("Options: look around, check console", 'cmd-info');
+            break;
+          case 1:
+            await appendOutput("You see a terminal with a blinking cursor.", 'game-text');
+            await appendOutput("Options: type 'help', or 'sleep'", 'cmd-info');
+            break;
+          case 2:
+            await appendOutput("The terminal responds with a cryptic message.", 'game-text');
+            await appendOutput("You feel a surge of power and insight.", 'cmd-info');
+            break;
+          default:
+            await appendOutput("The adventure ends here. Thanks for playing!", 'cmd-info');
+            gameMode = null;
+            textAdvActive = false;
+            break;
+        }
+      }
+
+      async function handleTextAdventureInput(input) {
+        if (!textAdvActive) return;
+        const cmd = input.toLowerCase().trim();
+        switch(textAdvStep) {
+          case 0:
+            if (cmd === 'look around') {
+              textAdvStep = 1;
+              await textAdventureStep(1);
+            } else if (cmd === 'check console') {
+              textAdvStep = 1;
+              await textAdventureStep(1);
+            } else {
+              await appendOutput("Try 'look around' or 'check console'", 'cmd-warning');
+            }
+            break;
+          case 1:
+            if (cmd === 'help') {
+              textAdvStep = 2;
+              await textAdventureStep(2);
+            } else if (cmd === 'sleep') {
+              textAdvStep = 3;
+              await textAdventureStep(3);
+            } else {
+              await appendOutput("Try 'help' or 'sleep'", 'cmd-warning');
+            }
+            break;
+          default:
+            await appendOutput("Adventure finished. Type 'exit' to quit.", 'cmd-info');
+        }
+      }
+
+      // === Digit AI Chat ===
+      // Simple chatbot
+
+      async function handleDigitInput(input) {
+        if (!chatMode) return;
+        const msg = input.toLowerCase().trim();
+        if (!msg) {
+          await appendOutput("Say something Digit...", 'cmd-info');
+          return;
+        }
+        // Basic simulated AI replies
+        let reply = "Digit doesn't understand that.";
+        if (msg.includes("hello") || msg.includes("hi")) {
+          reply = "Hello operator. How can I assist you today?";
+        } else if (msg.includes("who are you")) {
+          reply = "I am Digit AI, your digital assistant in the cyber realm.";
+        } else if (msg.includes("hack")) {
+          reply = "Hacking is a delicate dance with code and time.";
+        } else if (msg.includes("joke")) {
+          reply = "Why do programmers prefer dark mode? Because light attracts bugs.";
+        } else if (msg.includes("exit")) {
           chatMode = false;
-          await typeOutput("Digit AI chat mode exited.", {styleClass:'cmd-info'});
-          return;
-        }
-
-        if (input.includes('hello') || input.includes('hi')) {
-          await typeOutput("Hey choom! What's up?", {styleClass:'cmd-ok'});
-        } else if (input.includes('how are you')) {
-          await typeOutput("Digit v0.2 feels electrified and ready.", {styleClass:'cmd-ok'});
-        } else if (input.includes('help')) {
-          await typeOutput("Try commands like 'whoami', 'connect', or 'guessnumber'.", {styleClass:'cmd-info'});
-        } else if (input.includes('game')) {
-          await typeOutput("Try 'guessnumber' or 'hacking' commands to play games!", {styleClass:'cmd-info'});
-        } else if (input.includes('ascii')) {
-          await commands.ascii();
+          reply = "Digit signing off. Stay safe out there.";
         } else {
-          await typeOutput("Digit is pondering... try something else.", {styleClass:'cmd-warning'});
+          reply = "Processing your request... but I am just a simple AI.";
         }
-      }
-
-      // Password input mask helper
-      function maskPasswordInput(e) {
-        if (!passwordMode) return;
-        // show stars but keep the real value in a separate variable
-        // We'll handle that by storing input.value in passwordBuffer (done below)
-      }
-
-      // Login procedure
-      let loginUsername = '';
-      let loginPassword = '';
-      let passwordBuffer = '';
-
-      async function processLoginStep(value) {
-        if (loginStep === 1) {
-          // username entered
-          loginUsername = value.trim();
-          if (!loginUsername) {
-            await typeOutput("Username cannot be empty. Try again:", {styleClass:'cmd-error'});
-            return;
-          }
-          await typeOutput("Username set to '" + loginUsername + "'. Enter password:", {styleClass:'cmd-info'});
-          loginStep = 2;
-          passwordMode = true;
-          cmdline.value = '';
-          cmdline.classList.add('password');
-          passwordBuffer = '';
-          cmdline.focus();
-        } else if (loginStep === 2) {
-          // password entered (masked)
-          loginPassword = value.trim();
-          // Here you can do a real check, for demo allow only a single password "nexus"
-          if (loginPassword === "nexus") {
-            await typeOutput("Access granted. Welcome, " + loginUsername + "!", {styleClass:'cmd-success'});
-            loggedIn = true;
-            username = loginUsername;
-            loginStep = 0;
-            passwordMode = false;
-            cmdline.classList.remove('password');
-          } else {
-            await typeOutput("Access denied. Incorrect password. Try login again.", {styleClass:'cmd-error'});
-            loggedIn = false;
-            loginStep = 0;
-            passwordMode = false;
-            cmdline.classList.remove('password');
-          }
-          cmdline.value = '';
-          cmdline.focus();
-        }
-      }
-
-      // Hacking minigame
-      let hackingPasscode = "";
-      let hackingAttemptsLeft = 6;
-
-      function generatePasscode(length = 4) {
-        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-        let code = '';
-        for (let i = 0; i < length; i++) {
-          code += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return code;
-      }
-
-      function startHackingMinigame() {
-        hackingPasscode = generatePasscode();
-        hackingAttemptsLeft = 6;
-        typeOutput(`Passcode generated. Attempts left: ${hackingAttemptsLeft}`, {styleClass:'game-text'});
-      }
-
-      async function processHackingInput(input) {
-        input = input.toUpperCase();
-        if (input === hackingPasscode) {
-          await typeOutput(`Access granted! Passcode ${hackingPasscode} correct!`, {styleClass:'cmd-success'});
+        await appendOutput(`Digit: ${reply}`, 'cmd-info');
+        if (!chatMode) {
+          await appendOutput("Exited Digit AI chat mode.", 'cmd-info');
           gameMode = null;
-          return;
-        }
-        if (input.length !== hackingPasscode.length) {
-          await typeOutput(`Passcode must be ${hackingPasscode.length} characters long.`, {styleClass:'cmd-error'});
-          return;
-        }
-
-        // Provide feedback: count matching chars and positions (like Mastermind)
-        let correctPositions = 0;
-        let correctChars = 0;
-        let passcodeChars = hackingPasscode.split('');
-        let inputChars = input.split('');
-
-        // First pass: exact matches
-        for (let i = 0; i < inputChars.length; i++) {
-          if (inputChars[i] === passcodeChars[i]) {
-            correctPositions++;
-            passcodeChars[i] = null; // mark matched
-            inputChars[i] = null;
-          }
-        }
-        // Second pass: correct chars in wrong positions
-        for (let i = 0; i < inputChars.length; i++) {
-          if (inputChars[i] === null) continue;
-          let idx = passcodeChars.indexOf(inputChars[i]);
-          if (idx !== -1) {
-            correctChars++;
-            passcodeChars[idx] = null;
-          }
-        }
-
-        hackingAttemptsLeft--;
-        if (hackingAttemptsLeft <= 0) {
-          await typeOutput(`All attempts exhausted! The passcode was: ${hackingPasscode}`, {styleClass:'cmd-error'});
-          gameMode = null;
-        } else {
-          await typeOutput(`Correct positions: ${correctPositions}, Correct chars: ${correctChars}. Attempts left: ${hackingAttemptsLeft}`, {styleClass:'cmd-warning'});
         }
       }
 
-      // Process guessnumber input
-      async function processGuessNumberInput(value) {
-        const guess = parseInt(value, 10);
-        if (isNaN(guess) || guess < 1 || guess > 100) {
-          await typeOutput("Invalid input. Please guess a number between 1 and 100.", {styleClass:'cmd-error'});
-          return;
-        }
-        guessNumberAttempts++;
-        if (guess === guessNumberTarget) {
-          await typeOutput(`You got it in ${guessNumberAttempts} tries! Congratulations!`, {styleClass:'cmd-success'});
-          gameMode = null;
-        } else if (guess < guessNumberTarget) {
-          await typeOutput("Too low. Try again.", {styleClass:'cmd-warning'});
-        } else {
-          await typeOutput("Too high. Try again.", {styleClass:'cmd-warning'});
-        }
-      }
+      // === INPUT HANDLER ===
 
-      // Handle input submit
-      async function onInputSubmit(inputValue) {
+      async function handleInput(input) {
         if (inputLocked) return;
+        inputLocked = true;
 
-        if (loginStep > 0) {
-          // Login sequence
-          await processLoginStep(inputValue);
-          return;
-        }
+        // Play key press sound
+        playSound(soundKey);
 
         if (passwordMode) {
-          // Hide actual password input, but here we treat whole value as password
-          // Because input is normal text input with 'password' style class (masked by CSS spacing)
-          // We'll just treat it normally
+          // Handle password input
+          passwordBuffer = input;
+          passwordMode = false;
+
+          // Validate login
+          if (loginStep === 2) {
+            if (passwordBuffer === 'synthwave') {
+              loggedIn = true;
+              username = currentLoginUser;
+              await appendOutput(`Welcome back, ${username}! Access level elevated.`, 'cmd-success');
+            } else {
+              await appendOutput("Incorrect password. Access denied.", 'cmd-error');
+            }
+            loginStep = 0;
+            currentLoginUser = null;
+            inputLocked = false;
+            return;
+          }
+        }
+
+        // Handle login flow
+        if (loginStep === 1) {
+          const user = input.trim();
+          if (!validateUsername(user)) {
+            await appendOutput("Invalid username. Must be 3-15 letters/numbers/_/-", 'cmd-error');
+            inputLocked = false;
+            return;
+          }
+          currentLoginUser = user;
+          loginStep = 2;
+          passwordMode = true;
+          cmdline.type = 'password';
+          await appendOutput("Enter password:", 'cmd-info');
+          inputLocked = false;
           return;
         }
 
+        // Handle game input
         if (gameMode === 'guessnumber') {
-          if (inputValue.toLowerCase() === 'exit') {
-            await typeOutput("Exiting guessnumber game.", {styleClass:'cmd-info'});
+          if (input.toLowerCase() === 'exit') {
             gameMode = null;
+            await appendOutput("Exited guessing game.", 'cmd-info');
+            inputLocked = false;
             return;
           }
-          await processGuessNumberInput(inputValue);
-          return;
-        }
-
-        if (gameMode === 'hacking') {
-          if (inputValue.toLowerCase() === 'exit') {
-            await typeOutput("Exiting hacking game.", {styleClass:'cmd-info'});
-            gameMode = null;
+          const guess = parseInt(input);
+          if (isNaN(guess)) {
+            await appendOutput("Please enter a number.", 'cmd-warning');
+            inputLocked = false;
             return;
           }
-          await processHackingInput(inputValue);
+          guessNumberAttempts++;
+          if (guess === guessNumberTarget) {
+            await appendOutput(`Correct! You guessed in ${guessNumberAttempts} attempts.`, 'cmd-success');
+            gameMode = null;
+          } else if (guess < guessNumberTarget) {
+            await appendOutput("Too low.", 'cmd-info');
+          } else {
+            await appendOutput("Too high.", 'cmd-info');
+          }
+          inputLocked = false;
+          return;
+        } else if (gameMode === 'tictactoe' && tttActive) {
+          if (input.toLowerCase() === 'exit') {
+            gameMode = null;
+            tttActive = false;
+            await appendOutput("Exited Tic Tac Toe.", 'cmd-info');
+            inputLocked = false;
+            return;
+          }
+          await handleTTTMove(input);
+          inputLocked = false;
+          return;
+        } else if (gameMode === 'minesweeper' && msActive) {
+          if (input.toLowerCase() === 'exit') {
+            gameMode = null;
+            msActive = false;
+            await appendOutput("Exited Minesweeper.", 'cmd-info');
+            inputLocked = false;
+            return;
+          }
+          // reveal r c
+          const parts = input.toLowerCase().split(' ');
+          if (parts[0] === 'reveal' && parts.length === 3) {
+            const r = parseInt(parts[1]);
+            const c = parseInt(parts[2]);
+            if (isNaN(r) || isNaN(c)) {
+              await appendOutput("Invalid coordinates.", 'cmd-warning');
+              inputLocked = false;
+              return;
+            }
+            await revealCell(r,c);
+            inputLocked = false;
+            return;
+          } else {
+            await appendOutput("Use 'reveal r c' to reveal cell.", 'cmd-warning');
+            inputLocked = false;
+            return;
+          }
+        } else if (gameMode === 'snake' && snakeActive) {
+          if (input.toLowerCase() === 'exit') {
+            snakeActive = false;
+            clearInterval(snakeInterval);
+            gameMode = null;
+            await appendOutput("Exited Snake game.", 'cmd-info');
+            inputLocked = false;
+            return;
+          }
+          // No other input needed, controlled by keyboard
+          inputLocked = false;
+          return;
+        } else if (gameMode === 'textadv' && textAdvActive) {
+          if (input.toLowerCase() === 'exit') {
+            textAdvActive = false;
+            gameMode = null;
+            await appendOutput("Exited text adventure.", 'cmd-info');
+            inputLocked = false;
+            return;
+          }
+          await handleTextAdventureInput(input);
+          inputLocked = false;
+          return;
+        } else if (chatMode) {
+          await handleDigitInput(input);
+          inputLocked = false;
           return;
         }
 
-        if (chatMode) {
-          await digitReply(inputValue);
+        // Normal commands
+        const parts = input.trim().split(/\s+/);
+        const cmd = parts[0].toLowerCase();
+        const args = parts.slice(1);
+
+        // Aliases
+        if (cmd === 'ls') {
+          await commands.files();
+          inputLocked = false;
+          return;
+        } else if (cmd === 'cat') {
+          await commands.open(args);
+          inputLocked = false;
+          return;
+        } else if (cmd === 'rm') {
+          await appendOutput("Delete command is disabled (mock).", 'cmd-warning');
+          inputLocked = false;
           return;
         }
-
-        // Regular command processing
-        if (!inputValue) return;
-
-        let parts = inputValue.trim().split(/\s+/);
-        let cmd = parts[0].toLowerCase();
-        let args = parts.slice(1);
 
         if (commands[cmd]) {
           await commands[cmd](args);
         } else {
-          await typeOutput(`Unknown command '${cmd}'. Type "help" for commands.`, {styleClass:'cmd-error'});
-          playSound(soundError);
+          await appendOutput(`Command not found: ${cmd}`, 'cmd-error');
         }
-      }
-
-      // Initialize terminal
-      function init() {
-        showBanner();
-        clearOutput();
-
-        // Welcome message
-        typeOutput("NEXUS CORE v0.2 INITIALIZED", {styleClass:'cmd-success'});
-        typeOutput('Type "help" for available commands.', {styleClass:'sys-msg'});
-
-        cmdline.focus();
-      }
-
-      // Command history navigation
-      function historyPrev() {
-        if (histPos > 0) {
-          histPos--;
-          cmdline.value = history[histPos] || '';
-        }
-      }
-      function historyNext() {
-        if (histPos < history.length - 1) {
-          histPos++;
-          cmdline.value = history[histPos] || '';
-        } else {
-          histPos = history.length;
-          cmdline.value = '';
-        }
-      }
-
-      // Unlock input (if locked)
-      function unlockInput() {
         inputLocked = false;
-        cmdline.disabled = false;
+      }
+
+      // === INITIAL SETUP ===
+
+      function init() {
+        spawnNeonLines(20);
+        showBanner();
+        output.focus();
         cmdline.focus();
       }
 
-      // Lock input (to prevent typing)
-      function lockInput() {
-        inputLocked = true;
-        cmdline.disabled = true;
-      }
-
-      // Handle password masking logic (optional)
-      // For demo, CSS spacing effect is used
-
-      // Event listeners
-
-      cmdline.addEventListener('keydown', async (e) => {
-        if (inputLocked) {
-          e.preventDefault();
-          return;
-        }
-
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          const val = cmdline.value;
-          if (val.trim()) {
-            history.push(val);
-            histPos = history.length;
-            appendRaw(`\n> ${val}`);
+      window.onload = () => {
+        init();
+        cmdline.type = 'text';
+        cmdline.addEventListener('keydown', async (e) => {
+          if (e.key === 'Enter') {
+            const input = cmdline.value;
             cmdline.value = '';
-            await onInputSubmit(val);
+            await handleInput(input);
           }
-        } else if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          historyPrev();
-        } else if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          historyNext();
-        } else {
-          // Play key sound (throttle?)
-          playSound(soundKey);
-        }
-      });
-
-      // Prevent losing focus
-      terminal.addEventListener('click', () => {
-        if (!inputLocked) cmdline.focus();
-      });
-
-      // Initialize
-      init();
+        });
+      };
 
     })();
   </script>
