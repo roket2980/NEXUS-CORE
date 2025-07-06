@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NEXUS CORE v0.1</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 30px;
+      background: black;
+      color: #00ffcc;
+      font-family: 'Courier New', Courier, monospace;
+      overflow-x: hidden;
+    }
+
+    .terminal {
+      max-width: 900px;
+      margin: auto;
+      background: #000;
+      border: 1px solid #00ffcc;
+      box-shadow: 0 0 20px #00ffcc33;
+      padding: 30px;
+    }
+
+    .ascii {
+      white-space: pre;
+      color: #ff00ff;
+      font-size: 12px;
+      text-shadow: 0 0 5px #ff00ff66;
+      margin-bottom: 20px;
+    }
+
+    .output {
+      white-space: pre-wrap;
+      min-height: 200px;
+      margin-bottom: 20px;
+    }
+
+    .input-line {
+      display: flex;
+      align-items: center;
+    }
+
+    .input-line::before {
+      content: "> ";
+      color: #00ffcc;
+    }
+
+    input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #00ffcc;
+      font-size: 1em;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .glow {
+      animation: flicker 0.12s infinite alternate;
+    }
+
+    @keyframes flicker {
+      from { opacity: 1; }
+      to { opacity: 0.5; }
+    }
+
+    @media screen and (max-width: 768px) {
+      .ascii {
+        font-size: 9px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="terminal">
+    <div class="ascii glow">
+      ███╗   ██╗███████╗██╗  ██╗██╗   ██╗███████╗    ██████╗ ██████╗ ██████╗ ███████╗
+      ████╗  ██║██╔════╝╚██╗██╔╝██║   ██║██╔════╝   ██╔════╝ ██╔══██╗██╔══██╗██╔════╝
+      ██╔██╗ ██║█████╗   ╚███╔╝ ██║   ██║█████╗     ██║  ███╗██████╔╝██████╔╝█████╗  
+      ██║╚██╗██║██╔══╝   ██╔██╗ ██║   ██║██╔══╝     ██║   ██║██╔═══╝ ██╔═══╝ ██╔══╝  
+      ██║ ╚████║███████╗██╔╝ ██╗╚██████╔╝███████╗██╗╚██████╔╝██║     ██║     ███████╗
+      ╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝ ╚═════╝ ╚═╝     ╚═╝     ╚══════╝
+    </div>
+    <div class="output" id="terminal-output">
+      Initializing NEXUS CORE...
+      > Type "help" for available commands.
+    </div>
+    <div class="input-line">
+      <input type="text" id="terminal-input" autocomplete="off" autofocus />
+    </div>
+  </div>
+
+  <script>
+    const output = document.getElementById('terminal-output');
+    const input = document.getElementById('terminal-input');
+
+    const commands = {
+      help: `Available Commands:
+  help         - Show this menu
+  whoami       - Identify yourself
+  connect      - Simulate network connection
+  clear        - Clear terminal screen
+  digit        - Summon AI response
+  ascii        - Show the banner again`,
+
+      whoami: `user: guest
+rank: outsider
+access_level: 0x00`,
+
+      connect: `Attempting connection...
+Establishing secure link...
+Link stabilized.
+NEXUS CORE uplink successful.`,
+
+      clear: '',
+
+      digit: `Heyo, choom. This is Digit v0.1.
+Ready to ride or die — what's the next move?
+> Hint: try typing "ascii" if you miss the vibe.`,
+
+      ascii: document.querySelector('.ascii').innerText
+    };
+
+    function runCommand(cmd) {
+      cmd = cmd.toLowerCase();
+      if (commands.hasOwnProperty(cmd)) {
+        if (cmd === 'clear') {
+          output.innerText = '';
+        } else {
+          output.innerText += `\n> ${cmd}\n${commands[cmd]}`;
+        }
+      } else {
+        output.innerText += `\n> ${cmd}\nUnknown command. Type "help".`;
+      }
+
+      output.scrollTop = output.scrollHeight;
+    }
+
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        const cmd = input.value.trim();
+        runCommand(cmd);
+        input.value = '';
+      }
+    });
+  </script>
+</body>
+</html>
