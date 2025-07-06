@@ -1,94 +1,150 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>NETRUNNER VR // DIGIT v0.1</title>
-    <meta name="description" content="A VR hacking terminal powered by A-Frame.">
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <style>
-      body { margin: 0; font-family: monospace; }
-      .ascii-overlay {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        width: 100%;
-        white-space: pre;
-        color: #00ffcc;
-        font-size: 8px;
-        text-shadow: 0 0 4px #00ffcc;
-        pointer-events: none;
-        z-index: 1000;
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NEXUS CORE v0.1</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 30px;
+      background: black;
+      color: #00ffcc;
+      font-family: 'Courier New', Courier, monospace;
+      overflow-x: hidden;
+    }
+
+    .terminal {
+      max-width: 900px;
+      margin: auto;
+      background: #000;
+      border: 1px solid #00ffcc;
+      box-shadow: 0 0 20px #00ffcc33;
+      padding: 30px;
+    }
+
+    .ascii {
+      white-space: pre;
+      color: #ff00ff;
+      font-size: 12px;
+      text-shadow: 0 0 5px #ff00ff66;
+      margin-bottom: 20px;
+    }
+
+    .output {
+      white-space: pre-wrap;
+      min-height: 200px;
+      margin-bottom: 20px;
+    }
+
+    .input-line {
+      display: flex;
+      align-items: center;
+    }
+
+    .input-line::before {
+      content: "> ";
+      color: #00ffcc;
+    }
+
+    input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #00ffcc;
+      font-size: 1em;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .glow {
+      animation: flicker 0.12s infinite alternate;
+    }
+
+    @keyframes flicker {
+      from { opacity: 1; }
+      to { opacity: 0.5; }
+    }
+
+    @media screen and (max-width: 768px) {
+      .ascii {
+        font-size: 9px;
       }
-    </style>
-  </head>
-  <body>
-    <!-- ASCII overlay (from your art) -->
-    <div class="ascii-overlay">
-      NETRUNNER SYSTEM ONLINE...  
-      DIGIT v0.1 INITIALIZED...
-      [ASCII ART OR GREETING TEXT CAN GO HERE]
+    }
+  </style>
+</head>
+<body>
+  <div class="terminal">
+    <div class="ascii glow">
+      ███╗   ██╗███████╗██╗  ██╗██╗   ██╗███████╗    ██████╗ ██████╗ ██████╗ ███████╗
+      ████╗  ██║██╔════╝╚██╗██╔╝██║   ██║██╔════╝   ██╔════╝ ██╔══██╗██╔══██╗██╔════╝
+      ██╔██╗ ██║█████╗   ╚███╔╝ ██║   ██║█████╗     ██║  ███╗██████╔╝██████╔╝█████╗  
+      ██║╚██╗██║██╔══╝   ██╔██╗ ██║   ██║██╔══╝     ██║   ██║██╔═══╝ ██╔═══╝ ██╔══╝  
+      ██║ ╚████║███████╗██╔╝ ██╗╚██████╔╝███████╗██╗╚██████╔╝██║     ██║     ███████╗
+      ╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝ ╚═════╝ ╚═╝     ╚═╝     ╚══════╝
     </div>
+    <div class="output" id="terminal-output">
+      Initializing NEXUS CORE...
+      > Type "help" for available commands.
+    </div>
+    <div class="input-line">
+      <input type="text" id="terminal-input" autocomplete="off" autofocus />
+    </div>
+  </div>
 
-    <!-- A-FRAME VR SCENE -->
-    <a-scene background="color: black">
-      <!-- Hologram Terminal -->
-      <a-box 
-        position="0 1 -3" 
-        depth="0.5" 
-        height="1" 
-        width="2" 
-        color="#111"
-        material="opacity: 0.7; transparent: true"
-        shadow>
-      </a-box>
+  <script>
+    const output = document.getElementById('terminal-output');
+    const input = document.getElementById('terminal-input');
 
-      <!-- Welcome Text -->
-      <a-text 
-        value="ACCESS GRANTED\nWelcome, Operative." 
-        position="-1.2 1.4 -3" 
-        color="#00ffcc"
-        align="left"
-        width="4"
-        shader="msdf" 
-        font="https://cdn.aframe.io/fonts/monoid.fnt">
-      </a-text>
+    const commands = {
+      help: `Available Commands:
+  help         - Show this menu
+  whoami       - Identify yourself
+  connect      - Simulate network connection
+  clear        - Clear terminal screen
+  digit        - Summon AI response
+  ascii        - Show the banner again`,
 
-      <!-- AI Terminal -->
-      <a-entity 
-        id="digitAI" 
-        geometry="primitive: sphere; radius: 0.4" 
-        material="color: #ff00ff; emissive: #ff00ff; opacity: 0.8; transparent: true" 
-        position="0 2 -4" 
-        animation="property: rotation; to: 0 360 0; loop: true; dur: 8000">
-      </a-entity>
+      whoami: `user: guest
+rank: outsider
+access_level: 0x00`,
 
-      <!-- AI Response Panel -->
-      <a-text 
-        value=">> Hello, I am DIGIT v0.1.\n>> Awaiting command..." 
-        position="-1.5 0.2 -3" 
-        color="#00ffcc"
-        align="left"
-        width="4"
-        shader="msdf"
-        font="https://cdn.aframe.io/fonts/monoid.fnt">
-      </a-text>
+      connect: `Attempting connection...
+Establishing secure link...
+Link stabilized.
+NEXUS CORE uplink successful.`,
 
-      <!-- Ground -->
-      <a-plane 
-        rotation="-90 0 0" 
-        width="30" 
-        height="30" 
-        color="#111">
-      </a-plane>
+      clear: '',
 
-      <!-- Lighting -->
-      <a-entity light="type: point; color: #00ffff; intensity: 1; distance: 15" position="0 4 -3"></a-entity>
-      <a-entity light="type: ambient; color: #222"></a-entity>
+      digit: `Heyo, choom. This is Digit v0.1.
+Ready to ride or die — what's the next move?
+> Hint: try typing "ascii" if you miss the vibe.`,
 
-      <!-- Camera -->
-      <a-entity position="0 1.6 0">
-        <a-camera></a-camera>
-      </a-entity>
-    </a-scene>
-  </body>
+      ascii: document.querySelector('.ascii').innerText
+    };
+
+    function runCommand(cmd) {
+      cmd = cmd.toLowerCase();
+      if (commands.hasOwnProperty(cmd)) {
+        if (cmd === 'clear') {
+          output.innerText = '';
+        } else {
+          output.innerText += `\n> ${cmd}\n${commands[cmd]}`;
+        }
+      } else {
+        output.innerText += `\n> ${cmd}\nUnknown command. Type "help".`;
+      }
+
+      output.scrollTop = output.scrollHeight;
+    }
+
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        const cmd = input.value.trim();
+        runCommand(cmd);
+        input.value = '';
+      }
+    });
+  </script>
+</body>
 </html>
