@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>NETRUNNER VR // DIGIT v0.1</title>
+    <meta name="description" content="A VR hacking terminal powered by A-Frame.">
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <style>
+      body { margin: 0; font-family: monospace; }
+      .ascii-overlay {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        width: 100%;
+        white-space: pre;
+        color: #00ffcc;
+        font-size: 8px;
+        text-shadow: 0 0 4px #00ffcc;
+        pointer-events: none;
+        z-index: 1000;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ASCII overlay (from your art) -->
+    <div class="ascii-overlay">
+      NETRUNNER SYSTEM ONLINE...  
+      DIGIT v0.1 INITIALIZED...
+      [ASCII ART OR GREETING TEXT CAN GO HERE]
+    </div>
+
+    <!-- A-FRAME VR SCENE -->
+    <a-scene background="color: black">
+      <!-- Hologram Terminal -->
+      <a-box 
+        position="0 1 -3" 
+        depth="0.5" 
+        height="1" 
+        width="2" 
+        color="#111"
+        material="opacity: 0.7; transparent: true"
+        shadow>
+      </a-box>
+
+      <!-- Welcome Text -->
+      <a-text 
+        value="ACCESS GRANTED\nWelcome, Operative." 
+        position="-1.2 1.4 -3" 
+        color="#00ffcc"
+        align="left"
+        width="4"
+        shader="msdf" 
+        font="https://cdn.aframe.io/fonts/monoid.fnt">
+      </a-text>
+
+      <!-- AI Terminal -->
+      <a-entity 
+        id="digitAI" 
+        geometry="primitive: sphere; radius: 0.4" 
+        material="color: #ff00ff; emissive: #ff00ff; opacity: 0.8; transparent: true" 
+        position="0 2 -4" 
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 8000">
+      </a-entity>
+
+      <!-- AI Response Panel -->
+      <a-text 
+        value=">> Hello, I am DIGIT v0.1.\n>> Awaiting command..." 
+        position="-1.5 0.2 -3" 
+        color="#00ffcc"
+        align="left"
+        width="4"
+        shader="msdf"
+        font="https://cdn.aframe.io/fonts/monoid.fnt">
+      </a-text>
+
+      <!-- Ground -->
+      <a-plane 
+        rotation="-90 0 0" 
+        width="30" 
+        height="30" 
+        color="#111">
+      </a-plane>
+
+      <!-- Lighting -->
+      <a-entity light="type: point; color: #00ffff; intensity: 1; distance: 15" position="0 4 -3"></a-entity>
+      <a-entity light="type: ambient; color: #222"></a-entity>
+
+      <!-- Camera -->
+      <a-entity position="0 1.6 0">
+        <a-camera></a-camera>
+      </a-entity>
+    </a-scene>
+  </body>
+</html>
