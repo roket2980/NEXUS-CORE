@@ -6,35 +6,32 @@
   <title>latreía of the owl</title>
   <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --border-width: 24px;
-      --medieval-border: url('data:image/svg+xml;utf8,<svg width="48" height="48" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="6" width="36" height="36" rx="12" fill="none" stroke="%235a4623" stroke-width="8"/><path d="M6 24 Q24 6 42 24 Q24 42 6 24 Z" fill="none" stroke="%239e8f5a" stroke-width="4"/></svg>');
-      --main-bg: #19110e;
-      --panel-bg: #231911;
-      --parchment-bg: #241b12;
-      --gold-accent: #b9a267;
-      --header-bg: #1a1409;
-      --footer-bg: #18120a;
-      --text-dark: #c6b788;
-      --text-light: #e2cfa2;
-      --shadow: 0 2px 24px #000e;
-    }
-
+    /* Leather texture background (free pattern from transparenttextures.com) */
     body {
       margin: 0;
       padding: 0;
       font-family: 'Quicksand', sans-serif;
       min-height: 100vh;
-      color: var(--text-dark);
+      color: #c6b788;
       background:
-        linear-gradient(120deg, #19110e 60%, #231911 100%),
-        url("https://images.unsplash.com/photo-1464983953574-0892a716854b") left 3% top 10%/350px auto no-repeat,
-        url("https://images.unsplash.com/photo-1506744038136-46273834b3fb") right 1% bottom 3%/320px auto no-repeat,
-        url("https://images.unsplash.com/photo-1518717758536-85ae29035b6d") 70% 80%/160px auto no-repeat;
-      background-attachment: fixed;
-      background-blend-mode: darken, normal, normal, normal;
+        url('https://www.transparenttextures.com/patterns/leather.png') repeat,
+        linear-gradient(120deg, #18120a 70%, #231911 100%);
+      background-blend-mode: multiply;
       position: relative;
       overflow-x: hidden;
+    }
+
+    :root {
+      --border-width: 18px;
+      --medieval-border: url('data:image/svg+xml;utf8,<svg width="36" height="36" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="32" height="32" rx="8" fill="none" stroke="%23321f12" stroke-width="4"/><circle cx="18" cy="18" r="10" fill="none" stroke="%23442d18" stroke-width="2"/></svg>');
+      --panel-bg: #231911f5;
+      --parchment-bg: #241b12e8;
+      --gold-accent: #78613c;
+      --header-bg: #1a1409ed;
+      --footer-bg: #18120ad9;
+      --text-dark: #c6b788;
+      --text-light: #e3d6b2;
+      --shadow: 0 2px 24px #000e;
     }
 
     header {
@@ -49,23 +46,13 @@
       box-shadow: var(--shadow);
       z-index: 10;
     }
-    header::after {
-      content:'';
-      position: absolute;
-      right: 24px; top: 18px;
-      width: 90px; height: 56px;
-      background: url("https://images.unsplash.com/photo-1518717758536-85ae29035b6d") no-repeat center center/contain;
-      opacity: 0.18;
-      pointer-events: none;
-      z-index: 1;
-    }
     h1 {
       font-family: 'UnifrakturCook', cursive;
       font-size: 3.2rem;
       margin: 0.2em 0 0.6em 0;
       color: var(--gold-accent);
       letter-spacing: 2px;
-      text-shadow: 0 2px 8px #b9a26744, 0 0 20px #000, 0 0 3px #5a4623;
+      text-shadow: 0 2px 8px #241a12, 0 0 20px #000, 0 0 3px #5a4623;
       z-index: 2;
       position: relative;
     }
@@ -119,7 +106,7 @@
       color: var(--gold-accent);
       margin-bottom: 0.3em;
       font-size: 1.7em;
-      text-shadow: 0 1px 0 #b9a267, 0 0 8px #000;
+      text-shadow: 0 1px 0 #78613c, 0 0 8px #000;
       filter: blur(0.2px);
     }
     ul {
@@ -152,21 +139,59 @@
       right: 1em;
       width: 54px;
       height: 54px;
-      background: radial-gradient(circle at 36px 20px, #b9a267 60%, #6e5427 100%);
+      background: radial-gradient(circle at 36px 20px, #78613c 60%, #392a18 100%);
       border-radius: 50%;
       box-shadow: 0 0 12px 2px #231a0e55;
       z-index: 9;
-      border: 2.7px solid #867049;
-      opacity: 0.85;
+      border: 2.7px solid #392a18;
+      opacity: 0.95;
       filter: grayscale(0.5) sepia(0.6) brightness(0.7);
+    }
+
+    /* Owl images, fully visible with medieval dark border */
+    .owl-gallery {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2em;
+      justify-content: center;
+      margin: 2.5em 0 1em 0;
+    }
+    .owl-frame {
+      background: #18120a;
+      border-image: var(--medieval-border) var(--border-width) stretch;
+      border-width: var(--border-width);
+      border-style: solid;
+      border-radius: 20px;
+      box-shadow: 0 2px 24px #000c, 0 0 0 8px #231911 inset;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 320px;
+      height: 240px;
+      overflow: hidden;
+      position: relative;
+    }
+    .owl-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: 0 1px 8px #0009;
+      display: block;
+    }
+    @media (max-width: 900px) {
+      .owl-gallery { gap: 1em; }
+      .owl-frame { width: 240px; height: 180px; }
+    }
+    @media (max-width: 600px) {
+      .owl-gallery { flex-direction: column; gap: 1em; }
+      .owl-frame { width: 98vw; height: 180px; }
     }
     @media (max-width: 800px) {
       main { margin: 1em; padding: 1em;}
       h1 { font-size: 2em; }
       h2 { font-size: 1.3em; }
       .moon { width: 38px; height: 38px;}
-      header::after { width: 60px; height: 36px; right: 8px; top: 8px; }
-      body { background-size: 160px auto, 140px auto, 80px auto; }
     }
   </style>
 </head>
@@ -182,6 +207,17 @@
     </nav>
   </header>
   <main>
+    <div class="owl-gallery">
+      <div class="owl-frame">
+        <img src="5722afc4498d35f597135b3a513b076d8284b85a.jpg" alt="Owl Standing at Night">
+      </div>
+      <div class="owl-frame">
+        <img src="image-photo/common-barn-owl-tyto-albahead-head-379547776" alt="Barn Owl Head">
+      </div>
+      <div class="owl-frame">
+        <img src="2e386bf6229629526311647f99d827f0_1591b8a6-67b9-48d4-8f90-88af7f0747dc.jpg" alt="Owl Tilting Head">
+      </div>
+    </div>
     <section id="about">
       <h2>About Us</h2>
       <p>
