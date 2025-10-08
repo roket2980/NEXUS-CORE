@@ -6,87 +6,162 @@
   <title>latreía of the owl</title>
   <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    /* Medieval border using SVG as border-image */
+    :root {
+      --border-width: 18px;
+      --medieval-border: url('data:image/svg+xml;utf8,<svg width="36" height="36" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="32" height="32" rx="8" fill="none" stroke="%23867A4F" stroke-width="4"/><circle cx="18" cy="18" r="10" fill="none" stroke="%239E835C" stroke-width="2"/></svg>');
+      --main-bg: #2b1f12;
+      --panel-bg: #31241a;
+      --parchment-bg: #f5ecd7;
+      --gold-accent: #b9a267;
+      --dark-accent: #4f3e24;
+      --header-bg: #3c2f1e;
+      --footer-bg: #251a10;
+      --text-dark: #291c10;
+      --text-light: #e2cfa2;
+    }
+
     body {
       margin: 0;
       padding: 0;
-      background: linear-gradient(120deg, #19110a 0%, #352716 100%);
-      color: #2c1f13;
       font-family: 'Quicksand', sans-serif;
       min-height: 100vh;
-      filter: sepia(0.18) contrast(1) brightness(0.92);
+      color: var(--text-dark);
+      background: var(--main-bg);
+      position: relative;
+      overflow-x: hidden;
     }
+    /* Owl backgrounds, positioned and faded */
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      z-index: 0;
+      opacity: 0.12;
+      pointer-events: none;
+      background-repeat: no-repeat;
+      background-size: 340px auto;
+    }
+    body::before {
+      left: 3vw; top: 5vh;
+      width: 340px; height: 470px;
+      background-image: url("https://www.google.com/url?sa=i&url=https%3A%2F%2Fbirdsoftheworld.org%2Fbow%2Fspecies%2Feabowl1%2Fcur%2Fintroduction&psig=AOvVaw0YCkJQXAUu-yBe-y_TrCEW&ust=1760032368744000&source=images&cd=vfe&opi=89978449&ved=0CBYQjRxqFwoTCIi67ruWlZADFQAAAAAdAAAAABAE");
+      transform: rotate(-7deg);
+    }
+    body::after {
+      right: 2vw; bottom: 2vh;
+      width: 320px; height: 170px;
+      background-image: url("https://www.google.com/imgres?q=barn%20owls&imgurl=https%3A%2F%2Fbase-prod.rspb-prod.magnolia-platform.com%2F.imaging%2Ffocalpoint%2Flandscape16to9%2F_WIDTH_x_HEIGHT_%2Fdam%2Fjcr%3A3320a3be-b8e0-4838-97c1-5dc37dbfc6c0%2F379547776-Species-Barn-Owl-tilting-head-at-camera.jpg&imgrefurl=https%3A%2F%2Fwww.rspb.org.uk%2Fbirds-and-wildlife%2Fbarn-owl&docid=akoBXFAlC0YxdM&tbnid=103hJs9Iz543vM&vet=12ahUKEwjcsfTRlZWQAxXLTDABHWwjGf0QM3oECCcQAA..i&w=2500&h=1458&hcb=2&ved=2ahUKEwjcsfTRlZWQAxXLTDABHWwjGf0QM3oECCcQAA");
+      transform: rotate(8deg) scaleX(-1);
+    }
+    /* Extra owl in header using absolute positioning */
+    header::after {
+      content:'';
+      position: absolute;
+      right: 24px; top: 28px;
+      width: 140px; height: 80px;
+      background: url("https://www.google.com/imgres?q=barn%20owls&imgurl=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0837%2F6749%2F2935%2Ffiles%2FJuly2017_1403-barn-owl-chicks-1200_8a32ef38-18fe-456f-b061-239953231fef.jpg%3Fv%3D1723051581&imgrefurl=https%3A%2F%2Fwww.robertefuller.com%2Fblogs%2Fblog%2Fbarn-owl-chicks-the-facts%3Fsrsltid%3DAfmBOoq_WShqy0N4lbKb0IPA11l99RIci-feEk5WZcjtmhr9FrV325ot&docid=eM3PmB67J2CPjM&tbnid=V7JwO7NLDQ-YzM&vet=12ahUKEwjcsfTRlZWQAxXLTDABHWwjGf0QM3oECC8QAA..i&w=1200&h=800&hcb=2&ved=2ahUKEwjcsfTRlZWQAxXLTDABHWwjGf0QM3oECC8QAA") no-repeat center center/contain;
+      opacity: 0.14;
+      pointer-events: none;
+      z-index: 1;
+    }
+
     header {
+      position: relative;
       text-align: center;
-      padding: 2rem 1rem 1rem 1rem;
-      background: rgba(40,30,16,0.92);
-      border-bottom: 2px solid #2c1f13;
-      box-shadow: 0 1px 8px #120b07bb;
+      padding: 2.2rem 1.2rem 1.2rem 1.2rem;
+      background: var(--header-bg);
+      border-bottom: 0;
+      box-shadow: 0 2px 18px #130d0677;
+      border-image: var(--medieval-border) var(--border-width) stretch;
+      border-width: var(--border-width);
+      border-style: solid;
+      border-radius: 24px 24px 0 0;
     }
     h1 {
+      position: relative;
       font-family: 'UnifrakturCook', cursive;
-      font-size: 3rem;
+      font-size: 3.1rem;
       margin: 0.2em 0 0.5em 0;
-      color: #b49c6c;
+      color: var(--gold-accent);
       letter-spacing: 2px;
-      text-shadow: 0 2px 0 #24190c, 0 0 2px #2c1f13;
+      text-shadow: 0 2px 2px #231a0e, 0 0 8px #b9a26744;
       filter: blur(0.5px);
+      z-index: 2;
     }
     nav {
       text-align: center;
       margin-bottom: 2em;
+      z-index: 2;
+      position: relative;
     }
     nav a {
-      color: #c8b08c;
+      color: var(--text-light);
       text-decoration: none;
       margin: 0 1.2em;
       font-weight: bold;
-      font-size: 1.1em;
+      font-size: 1.14em;
       transition: color 0.2s, border-bottom 0.2s;
       border-bottom: 2px solid transparent;
+      text-shadow: 0 1px 0 #b9a26744;
     }
     nav a:hover {
-      color: #b49c6c;
-      border-bottom: 2px solid #867049;
+      color: var(--gold-accent);
+      border-bottom: 2px solid var(--gold-accent);
       text-shadow: none;
     }
     main {
       max-width: 700px;
       margin: 2em auto;
-      background: rgba(40,30,16,0.98);
-      border-radius: 10px;
-      box-shadow: 0 1px 14px #1c140877;
-      padding: 2em;
-      border: 2px solid #2c1f13;
+      background: var(--panel-bg);
+      border-radius: 12px;
+      box-shadow: 0 1px 14px #392a1388;
+      padding: 2.2em;
+      border-image: var(--medieval-border) var(--border-width) stretch;
+      border-width: var(--border-width);
+      border-style: solid;
+      position: relative;
+      z-index: 2;
     }
     section {
       margin-bottom: 2em;
+      background: var(--parchment-bg);
+      border-radius: 10px;
+      border-image: var(--medieval-border) var(--border-width) stretch;
+      border-width: var(--border-width);
+      border-style: solid;
+      box-shadow: 0 2px 8px #231a0e44;
+      padding: 1.2em 1em 1.2em 1em;
+      position: relative;
     }
     h2 {
       font-family: 'UnifrakturCook', cursive;
-      color: #867049;
+      color: var(--dark-accent);
       margin-bottom: 0.3em;
-      font-size: 2em;
-      text-shadow: 0 1px 0 #b49c6c, 0 0 1px #2c1f13;
-      filter: blur(0.3px);
+      font-size: 1.7em;
+      text-shadow: 0 1px 0 #b9a267, 0 0 8px #f5ecd744;
+      filter: blur(0.2px);
     }
     ul {
       padding-left: 1.2em;
     }
     li {
       margin-bottom: 0.6em;
-      color: #b49c6c;
+      color: #6e5427;
       font-size: 1.08em;
       letter-spacing: 0.01em;
     }
     footer {
       text-align: center;
       margin-top: 2em;
-      color: #867049;
+      color: var(--gold-accent);
       font-size: 0.95em;
       padding: 1em 0;
-      border-top: 1px solid #2c1f13;
-      background: rgba(40,30,16,0.75);
-      box-shadow: 0 0 8px #24190c inset;
+      background: var(--footer-bg);
+      box-shadow: 0 0 8px #130d0677 inset;
+      border-image: var(--medieval-border) var(--border-width) stretch;
+      border-width: var(--border-width);
+      border-style: solid;
+      border-radius: 0 0 18px 18px;
     }
     /* Brass moon/medallion */
     .moon {
@@ -95,19 +170,22 @@
       right: 1em;
       width: 54px;
       height: 54px;
-      background: radial-gradient(circle at 36px 20px, #867049 60%, #2c1f13 100%);
+      background: radial-gradient(circle at 36px 20px, #b9a267 60%, #6e5427 100%);
       border-radius: 50%;
-      box-shadow: 0 0 12px 2px #24190c77;
+      box-shadow: 0 0 12px 2px #231a0e55;
       z-index: 9;
-      border: 2px solid #867049;
+      border: 2.7px solid #867049;
       opacity: 0.85;
-      filter: grayscale(0.3) sepia(0.3) brightness(0.92);
+      filter: grayscale(0.3) sepia(0.4) brightness(0.98);
     }
     @media (max-width: 800px) {
       main { margin: 1em; padding: 1em;}
       h1 { font-size: 2em; }
       h2 { font-size: 1.3em; }
       .moon { width: 38px; height: 38px;}
+      header::after { width: 70px; height: 40px; right: 8px; top: 10px; }
+      body::before { width: 200px; height: 270px; left: 2vw; top: 2vh;}
+      body::after { width: 150px; height: 80px; right: 1vw; bottom: 1vh;}
     }
   </style>
 </head>
