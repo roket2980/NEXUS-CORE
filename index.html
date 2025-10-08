@@ -6,31 +6,32 @@
   <title>latreía of the owl</title>
   <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    /* Leather texture background (free pattern from transparenttextures.com) */
+    /* Extra-dark leather texture background */
     body {
       margin: 0;
       padding: 0;
       font-family: 'Quicksand', sans-serif;
       min-height: 100vh;
-      color: #c6b788;
+      color: #c2b08d;
       background:
         url('https://www.transparenttextures.com/patterns/leather.png') repeat,
-        linear-gradient(120deg, #18120a 70%, #231911 100%);
+        linear-gradient(120deg, #140c06 80%, #231911 100%);
       background-blend-mode: multiply;
       position: relative;
       overflow-x: hidden;
     }
 
     :root {
-      --border-width: 18px;
-      --medieval-border: url('data:image/svg+xml;utf8,<svg width="36" height="36" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="32" height="32" rx="8" fill="none" stroke="%23321f12" stroke-width="4"/><circle cx="18" cy="18" r="10" fill="none" stroke="%23442d18" stroke-width="2"/></svg>');
-      --panel-bg: #231911f5;
-      --parchment-bg: #241b12e8;
-      --gold-accent: #78613c;
-      --header-bg: #1a1409ed;
-      --footer-bg: #18120ad9;
-      --text-dark: #c6b788;
-      --text-light: #e3d6b2;
+      --border-width: 20px;
+      /* Much darker medieval border, heavy */
+      --medieval-border: url('data:image/svg+xml;utf8,<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="30" height="30" rx="10" fill="none" stroke="%23100704" stroke-width="8"/><circle cx="20" cy="20" r="9" fill="none" stroke="%23381f0b" stroke-width="4"/></svg>');
+      --panel-bg: #1a1209fa;
+      --parchment-bg: #18110be8;
+      --gold-accent: #66513a;
+      --header-bg: #18110bfa;
+      --footer-bg: #1a1209fa;
+      --text-dark: #c2b08d;
+      --text-light: #d4c1a0;
       --shadow: 0 2px 24px #000e;
     }
 
@@ -52,7 +53,7 @@
       margin: 0.2em 0 0.6em 0;
       color: var(--gold-accent);
       letter-spacing: 2px;
-      text-shadow: 0 2px 8px #241a12, 0 0 20px #000, 0 0 3px #5a4623;
+      text-shadow: 0 2px 8px #140c06, 0 0 20px #000, 0 0 3px #381f0b;
       z-index: 2;
       position: relative;
     }
@@ -70,7 +71,7 @@
       font-size: 1.14em;
       transition: color 0.2s, border-bottom 0.2s;
       border-bottom: 2px solid transparent;
-      text-shadow: 0 2px 6px #241a12;
+      text-shadow: 0 2px 6px #140c06;
     }
     nav a:hover {
       color: var(--gold-accent);
@@ -106,15 +107,15 @@
       color: var(--gold-accent);
       margin-bottom: 0.3em;
       font-size: 1.7em;
-      text-shadow: 0 1px 0 #78613c, 0 0 8px #000;
-      filter: blur(0.2px);
+      text-shadow: 0 1px 0 #66513a, 0 0 8px #000;
+      filter: blur(0.15px);
     }
     ul {
       padding-left: 1.2em;
     }
     li {
       margin-bottom: 0.6em;
-      color: #b6a16a;
+      color: #a48b62;
       font-size: 1.08em;
       letter-spacing: 0.01em;
       text-shadow: 0 1px 4px #000;
@@ -139,53 +140,13 @@
       right: 1em;
       width: 54px;
       height: 54px;
-      background: radial-gradient(circle at 36px 20px, #78613c 60%, #392a18 100%);
+      background: radial-gradient(circle at 36px 20px, #66513a 60%, #1a1209 100%);
       border-radius: 50%;
-      box-shadow: 0 0 12px 2px #231a0e55;
+      box-shadow: 0 0 12px 2px #140c06;
       z-index: 9;
-      border: 2.7px solid #392a18;
+      border: 2.7px solid #381f0b;
       opacity: 0.95;
-      filter: grayscale(0.5) sepia(0.6) brightness(0.7);
-    }
-
-    /* Owl images, fully visible with medieval dark border */
-    .owl-gallery {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 2em;
-      justify-content: center;
-      margin: 2.5em 0 1em 0;
-    }
-    .owl-frame {
-      background: #18120a;
-      border-image: var(--medieval-border) var(--border-width) stretch;
-      border-width: var(--border-width);
-      border-style: solid;
-      border-radius: 20px;
-      box-shadow: 0 2px 24px #000c, 0 0 0 8px #231911 inset;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 320px;
-      height: 240px;
-      overflow: hidden;
-      position: relative;
-    }
-    .owl-frame img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 12px;
-      box-shadow: 0 1px 8px #0009;
-      display: block;
-    }
-    @media (max-width: 900px) {
-      .owl-gallery { gap: 1em; }
-      .owl-frame { width: 240px; height: 180px; }
-    }
-    @media (max-width: 600px) {
-      .owl-gallery { flex-direction: column; gap: 1em; }
-      .owl-frame { width: 98vw; height: 180px; }
+      filter: grayscale(0.6) sepia(0.6) brightness(0.7);
     }
     @media (max-width: 800px) {
       main { margin: 1em; padding: 1em;}
@@ -207,17 +168,6 @@
     </nav>
   </header>
   <main>
-    <div class="owl-gallery">
-      <div class="owl-frame">
-        <img src="5722afc4498d35f597135b3a513b076d8284b85a.jpg" alt="Owl Standing at Night">
-      </div>
-      <div class="owl-frame">
-        <img src="image-photo/common-barn-owl-tyto-albahead-head-379547776" alt="Barn Owl Head">
-      </div>
-      <div class="owl-frame">
-        <img src="2e386bf6229629526311647f99d827f0_1591b8a6-67b9-48d4-8f90-88af7f0747dc.jpg" alt="Owl Tilting Head">
-      </div>
-    </div>
     <section id="about">
       <h2>About Us</h2>
       <p>
