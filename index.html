@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Witchy Circle</title>
+  <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #2b213a 0%, #452e4b 100%);
+      color: #e0d7ec;
+      font-family: 'Quicksand', sans-serif;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      padding: 2rem 1rem 1rem 1rem;
+      background: rgba(38, 24, 48, 0.7);
+      box-shadow: 0 2px 12px #0004;
+    }
+    h1 {
+      font-family: 'UnifrakturCook', cursive;
+      font-size: 3rem;
+      margin: 0.2em 0 0.5em 0;
+      color: #d0b5d6;
+      letter-spacing: 2px;
+      text-shadow: 0 0 12px #7c4a8e;
+    }
+    nav {
+      text-align: center;
+      margin-bottom: 2em;
+    }
+    nav a {
+      color: #e0d7ec;
+      text-decoration: none;
+      margin: 0 1.2em;
+      font-weight: bold;
+      font-size: 1.1em;
+      transition: color 0.2s;
+      border-bottom: 2px solid transparent;
+    }
+    nav a:hover {
+      color: #c6a4ea;
+      border-bottom: 2px solid #b48bdb;
+    }
+    main {
+      max-width: 700px;
+      margin: 2em auto;
+      background: rgba(34, 21, 45, 0.8);
+      border-radius: 12px;
+      box-shadow: 0 2px 22px #0006;
+      padding: 2em;
+    }
+    section {
+      margin-bottom: 2em;
+    }
+    h2 {
+      font-family: 'UnifrakturCook', cursive;
+      color: #c6a4ea;
+      margin-bottom: 0.3em;
+      font-size: 2em;
+      text-shadow: 0 0 8px #7c4a8e;
+    }
+    ul {
+      padding-left: 1.2em;
+    }
+    footer {
+      text-align: center;
+      margin-top: 2em;
+      color: #d0b5d6;
+      font-size: 0.95em;
+      padding: 1em 0;
+      border-top: 1px solid #422d4a;
+      background: rgba(38, 24, 48, 0.4);
+    }
+    .moon {
+      position: fixed;
+      top: 1em;
+      right: 1em;
+      width: 56px;
+      height: 56px;
+      background: radial-gradient(circle at 36px 20px, #f7e4ff 60%, #c7b3d3 100%);
+      border-radius: 50%;
+      box-shadow: 0 0 32px 8px #c6a4ea88;
+      z-index: 9;
+      border: 2px solid #b48bdb;
+    }
+    @media (max-width: 800px) {
+      main { margin: 1em; padding: 1em;}
+      h1 { font-size: 2em; }
+      h2 { font-size: 1.3em; }
+      .moon { width: 40px; height: 40px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="moon" aria-hidden="true"></div>
+  <header>
+    <h1>Witchy Circle</h1>
+    <nav>
+      <a href="#about">About</a>
+      <a href="#members">Members</a>
+      <a href="#rituals">Rituals</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+  <main>
+    <section id="about">
+      <h2>About Us</h2>
+      <p>
+        Welcome to our circle of modern witches, seekers, and kindred spirits. We gather to share wisdom, celebrate the phases of the moon, and support each other in our magical journeys.
+      </p>
+    </section>
+    <section id="members">
+      <h2>Members</h2>
+      <ul>
+        <li>Seraphina - Keeper of the Tarot</li>
+        <li>Willow - Herbal Alchemist</li>
+        <li>Luna - Moon Ritualist</li>
+        <li>Rowan - Crystal Whisperer</li>
+      </ul>
+    </section>
+    <section id="rituals">
+      <h2>Upcoming Rituals</h2>
+      <ul>
+        <li>🔮 Full Moon Gathering – October 17th</li>
+        <li>🪶 Autumn Equinox Celebration – September 22nd</li>
+        <li>🌿 Herbal Workshop – November 3rd</li>
+      </ul>
+    </section>
+    <section id="contact">
+      <h2>Contact</h2>
+      <p>
+        Interested in joining or learning more? <br>
+        Email us at <a href="mailto:witchycircle@example.com">witchycircle@example.com</a>
+      </p>
+    </section>
+  </main>
+  <footer>
+    &copy; 2025 Witchy Circle. Blessed be!
+  </footer>
+</body>
+</html>
