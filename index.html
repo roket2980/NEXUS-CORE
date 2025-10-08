@@ -6,19 +6,18 @@
   <title>latreía of the owl</title>
   <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    /* Medieval border using SVG as border-image */
     :root {
-      --border-width: 18px;
-      --medieval-border: url('data:image/svg+xml;utf8,<svg width="36" height="36" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="32" height="32" rx="8" fill="none" stroke="%23867A4F" stroke-width="4"/><circle cx="18" cy="18" r="10" fill="none" stroke="%239E835C" stroke-width="2"/></svg>');
-      --main-bg: #2b1f12;
-      --panel-bg: #31241a;
-      --parchment-bg: #f5ecd7;
+      --border-width: 24px;
+      --medieval-border: url('data:image/svg+xml;utf8,<svg width="48" height="48" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="6" width="36" height="36" rx="12" fill="none" stroke="%235a4623" stroke-width="8"/><path d="M6 24 Q24 6 42 24 Q24 42 6 24 Z" fill="none" stroke="%239e8f5a" stroke-width="4"/></svg>');
+      --main-bg: #19110e;
+      --panel-bg: #231911;
+      --parchment-bg: #241b12;
       --gold-accent: #b9a267;
-      --dark-accent: #4f3e24;
-      --header-bg: #3c2f1e;
-      --footer-bg: #251a10;
-      --text-dark: #291c10;
+      --header-bg: #1a1409;
+      --footer-bg: #18120a;
+      --text-dark: #c6b788;
       --text-light: #e2cfa2;
+      --shadow: 0 2px 24px #000e;
     }
 
     body {
@@ -27,42 +26,15 @@
       font-family: 'Quicksand', sans-serif;
       min-height: 100vh;
       color: var(--text-dark);
-      background: var(--main-bg);
+      background:
+        linear-gradient(120deg, #19110e 60%, #231911 100%),
+        url("https://images.unsplash.com/photo-1464983953574-0892a716854b") left 3% top 10%/350px auto no-repeat,
+        url("https://images.unsplash.com/photo-1506744038136-46273834b3fb") right 1% bottom 3%/320px auto no-repeat,
+        url("https://images.unsplash.com/photo-1518717758536-85ae29035b6d") 70% 80%/160px auto no-repeat;
+      background-attachment: fixed;
+      background-blend-mode: darken, normal, normal, normal;
       position: relative;
       overflow-x: hidden;
-    }
-    /* Owl backgrounds, positioned and faded */
-    body::before, body::after {
-      content: '';
-      position: fixed;
-      z-index: 0;
-      opacity: 0.12;
-      pointer-events: none;
-      background-repeat: no-repeat;
-      background-size: 340px auto;
-    }
-    body::before {
-      left: 3vw; top: 5vh;
-      width: 340px; height: 470px;
-      background-image: url("https://www.google.com/url?sa=i&url=https%3A%2F%2Fbirdsoftheworld.org%2Fbow%2Fspecies%2Feabowl1%2Fcur%2Fintroduction&psig=AOvVaw0YCkJQXAUu-yBe-y_TrCEW&ust=1760032368744000&source=images&cd=vfe&opi=89978449&ved=0CBYQjRxqFwoTCIi67ruWlZADFQAAAAAdAAAAABAE");
-      transform: rotate(-7deg);
-    }
-    body::after {
-      right: 2vw; bottom: 2vh;
-      width: 320px; height: 170px;
-      background-image: url("https://www.google.com/imgres?q=barn%20owls&imgurl=https%3A%2F%2Fbase-prod.rspb-prod.magnolia-platform.com%2F.imaging%2Ffocalpoint%2Flandscape16to9%2F_WIDTH_x_HEIGHT_%2Fdam%2Fjcr%3A3320a3be-b8e0-4838-97c1-5dc37dbfc6c0%2F379547776-Species-Barn-Owl-tilting-head-at-camera.jpg&imgrefurl=https%3A%2F%2Fwww.rspb.org.uk%2Fbirds-and-wildlife%2Fbarn-owl&docid=akoBXFAlC0YxdM&tbnid=103hJs9Iz543vM&vet=12ahUKEwjcsfTRlZWQAxXLTDABHWwjGf0QM3oECCcQAA..i&w=2500&h=1458&hcb=2&ved=2ahUKEwjcsfTRlZWQAxXLTDABHWwjGf0QM3oECCcQAA");
-      transform: rotate(8deg) scaleX(-1);
-    }
-    /* Extra owl in header using absolute positioning */
-    header::after {
-      content:'';
-      position: absolute;
-      right: 24px; top: 28px;
-      width: 140px; height: 80px;
-      background: url("https://www.google.com/imgres?q=barn%20owls&imgurl=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0837%2F6749%2F2935%2Ffiles%2FJuly2017_1403-barn-owl-chicks-1200_8a32ef38-18fe-456f-b061-239953231fef.jpg%3Fv%3D1723051581&imgrefurl=https%3A%2F%2Fwww.robertefuller.com%2Fblogs%2Fblog%2Fbarn-owl-chicks-the-facts%3Fsrsltid%3DAfmBOoq_WShqy0N4lbKb0IPA11l99RIci-feEk5WZcjtmhr9FrV325ot&docid=eM3PmB67J2CPjM&tbnid=V7JwO7NLDQ-YzM&vet=12ahUKEwjcsfTRlZWQAxXLTDABHWwjGf0QM3oECC8QAA..i&w=1200&h=800&hcb=2&ved=2ahUKEwjcsfTRlZWQAxXLTDABHWwjGf0QM3oECC8QAA") no-repeat center center/contain;
-      opacity: 0.14;
-      pointer-events: none;
-      z-index: 1;
     }
 
     header {
@@ -70,23 +42,32 @@
       text-align: center;
       padding: 2.2rem 1.2rem 1.2rem 1.2rem;
       background: var(--header-bg);
-      border-bottom: 0;
-      box-shadow: 0 2px 18px #130d0677;
       border-image: var(--medieval-border) var(--border-width) stretch;
       border-width: var(--border-width);
       border-style: solid;
-      border-radius: 24px 24px 0 0;
+      border-radius: 32px 32px 0 0;
+      box-shadow: var(--shadow);
+      z-index: 10;
+    }
+    header::after {
+      content:'';
+      position: absolute;
+      right: 24px; top: 18px;
+      width: 90px; height: 56px;
+      background: url("https://images.unsplash.com/photo-1518717758536-85ae29035b6d") no-repeat center center/contain;
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 1;
     }
     h1 {
-      position: relative;
       font-family: 'UnifrakturCook', cursive;
-      font-size: 3.1rem;
-      margin: 0.2em 0 0.5em 0;
+      font-size: 3.2rem;
+      margin: 0.2em 0 0.6em 0;
       color: var(--gold-accent);
       letter-spacing: 2px;
-      text-shadow: 0 2px 2px #231a0e, 0 0 8px #b9a26744;
-      filter: blur(0.5px);
+      text-shadow: 0 2px 8px #b9a26744, 0 0 20px #000, 0 0 3px #5a4623;
       z-index: 2;
+      position: relative;
     }
     nav {
       text-align: center;
@@ -102,19 +83,19 @@
       font-size: 1.14em;
       transition: color 0.2s, border-bottom 0.2s;
       border-bottom: 2px solid transparent;
-      text-shadow: 0 1px 0 #b9a26744;
+      text-shadow: 0 2px 6px #241a12;
     }
     nav a:hover {
       color: var(--gold-accent);
       border-bottom: 2px solid var(--gold-accent);
-      text-shadow: none;
     }
+
     main {
       max-width: 700px;
       margin: 2em auto;
       background: var(--panel-bg);
-      border-radius: 12px;
-      box-shadow: 0 1px 14px #392a1388;
+      border-radius: 18px;
+      box-shadow: 0 1px 32px #000c;
       padding: 2.2em;
       border-image: var(--medieval-border) var(--border-width) stretch;
       border-width: var(--border-width);
@@ -129,16 +110,16 @@
       border-image: var(--medieval-border) var(--border-width) stretch;
       border-width: var(--border-width);
       border-style: solid;
-      box-shadow: 0 2px 8px #231a0e44;
+      box-shadow: 0 2px 12px #000a;
       padding: 1.2em 1em 1.2em 1em;
       position: relative;
     }
     h2 {
       font-family: 'UnifrakturCook', cursive;
-      color: var(--dark-accent);
+      color: var(--gold-accent);
       margin-bottom: 0.3em;
       font-size: 1.7em;
-      text-shadow: 0 1px 0 #b9a267, 0 0 8px #f5ecd744;
+      text-shadow: 0 1px 0 #b9a267, 0 0 8px #000;
       filter: blur(0.2px);
     }
     ul {
@@ -146,9 +127,10 @@
     }
     li {
       margin-bottom: 0.6em;
-      color: #6e5427;
+      color: #b6a16a;
       font-size: 1.08em;
       letter-spacing: 0.01em;
+      text-shadow: 0 1px 4px #000;
     }
     footer {
       text-align: center;
@@ -157,7 +139,7 @@
       font-size: 0.95em;
       padding: 1em 0;
       background: var(--footer-bg);
-      box-shadow: 0 0 8px #130d0677 inset;
+      box-shadow: 0 0 12px #000a inset;
       border-image: var(--medieval-border) var(--border-width) stretch;
       border-width: var(--border-width);
       border-style: solid;
@@ -176,16 +158,15 @@
       z-index: 9;
       border: 2.7px solid #867049;
       opacity: 0.85;
-      filter: grayscale(0.3) sepia(0.4) brightness(0.98);
+      filter: grayscale(0.5) sepia(0.6) brightness(0.7);
     }
     @media (max-width: 800px) {
       main { margin: 1em; padding: 1em;}
       h1 { font-size: 2em; }
       h2 { font-size: 1.3em; }
       .moon { width: 38px; height: 38px;}
-      header::after { width: 70px; height: 40px; right: 8px; top: 10px; }
-      body::before { width: 200px; height: 270px; left: 2vw; top: 2vh;}
-      body::after { width: 150px; height: 80px; right: 1vw; bottom: 1vh;}
+      header::after { width: 60px; height: 36px; right: 8px; top: 8px; }
+      body { background-size: 160px auto, 140px auto, 80px auto; }
     }
   </style>
 </head>
