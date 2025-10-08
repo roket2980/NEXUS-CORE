@@ -3,77 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Witchy Circle</title>
+  <title>latreía of the owl</title>
   <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
       padding: 0;
-      background: linear-gradient(135deg, #2b213a 0%, #452e4b 100%);
-      color: #e0d7ec;
+      background: linear-gradient(135deg, #4e2d14 0%, #7b5a38 100%);
+      color: #3b2a16;
       font-family: 'Quicksand', sans-serif;
       min-height: 100vh;
     }
     header {
       text-align: center;
       padding: 2rem 1rem 1rem 1rem;
-      background: rgba(38, 24, 48, 0.7);
-      box-shadow: 0 2px 12px #0004;
+      background: rgba(92, 60, 28, 0.8);
+      box-shadow: 0 2px 12px #0004, 0 0 40px #6b4221 inset;
+      border-bottom: 2px solid #7b5a38;
     }
     h1 {
       font-family: 'UnifrakturCook', cursive;
       font-size: 3rem;
       margin: 0.2em 0 0.5em 0;
-      color: #d0b5d6;
+      color: #c9b087;
       letter-spacing: 2px;
-      text-shadow: 0 0 12px #7c4a8e;
+      text-shadow: 0 0 12px #a59270;
     }
     nav {
       text-align: center;
       margin-bottom: 2em;
     }
     nav a {
-      color: #e0d7ec;
+      color: #e8d3b3;
       text-decoration: none;
       margin: 0 1.2em;
       font-weight: bold;
       font-size: 1.1em;
-      transition: color 0.2s;
+      transition: color 0.2s, border-bottom 0.2s;
       border-bottom: 2px solid transparent;
     }
     nav a:hover {
-      color: #c6a4ea;
-      border-bottom: 2px solid #b48bdb;
+      color: #c9b087;
+      border-bottom: 2px solid #a59270;
     }
     main {
       max-width: 700px;
       margin: 2em auto;
-      background: rgba(34, 21, 45, 0.8);
-      border-radius: 12px;
-      box-shadow: 0 2px 22px #0006;
+      background: linear-gradient(120deg, #e5d3b0 80%, #c9b087 100%);
+      border-radius: 18px;
+      box-shadow: 0 2px 22px #6b4221cc, 0 0 60px #7b5a3888 inset;
       padding: 2em;
+      border: 2px solid #7b5a38;
     }
     section {
       margin-bottom: 2em;
     }
     h2 {
       font-family: 'UnifrakturCook', cursive;
-      color: #c6a4ea;
+      color: #a59270;
       margin-bottom: 0.3em;
       font-size: 2em;
-      text-shadow: 0 0 8px #7c4a8e;
+      text-shadow: 0 0 8px #d1c4a0;
     }
     ul {
       padding-left: 1.2em;
     }
+    li {
+      margin-bottom: 0.6em;
+    }
     footer {
       text-align: center;
       margin-top: 2em;
-      color: #d0b5d6;
+      color: #a59270;
       font-size: 0.95em;
       padding: 1em 0;
-      border-top: 1px solid #422d4a;
-      background: rgba(38, 24, 48, 0.4);
+      border-top: 1px solid #7b5a38;
+      background: rgba(92, 60, 28, 0.5);
+      box-shadow: 0 0 20px #7b5a3844 inset;
     }
     .moon {
       position: fixed;
@@ -81,11 +87,12 @@
       right: 1em;
       width: 56px;
       height: 56px;
-      background: radial-gradient(circle at 36px 20px, #f7e4ff 60%, #c7b3d3 100%);
+      background: radial-gradient(circle at 36px 20px, #f7e4b0 60%, #c9b087 100%);
       border-radius: 50%;
-      box-shadow: 0 0 32px 8px #c6a4ea88;
+      box-shadow: 0 0 32px 8px #a5927088;
       z-index: 9;
-      border: 2px solid #b48bdb;
+      border: 2px solid #a59270;
+      opacity: 0.8;
     }
     @media (max-width: 800px) {
       main { margin: 1em; padding: 1em;}
