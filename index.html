@@ -34,8 +34,7 @@
       overflow-x: hidden;
     }
 
-    /* Witchy Stars Background */
-    .stars, .moon-bg {
+    .stars, .clouds, .moon-bg {
       position: fixed;
       pointer-events: none;
       width: 100vw;
@@ -44,9 +43,9 @@
       top: 0;
       z-index: 0;
     }
-    .stars {
-      background: transparent;
-    }
+
+    .stars { background: transparent; }
+
     .star {
       position: absolute;
       border-radius: 50%;
@@ -55,15 +54,27 @@
       filter: blur(0.5px) drop-shadow(0 0 4px #fff5);
     }
 
-    /* Large decorative moon (not main moon medallion) */
-    .moon-bg {
+    /* Clouds */
+    .clouds { z-index: 1; }
+    .cloud {
+      position: absolute;
+      width: 170px;
+      height: 70px;
+      opacity: 0.5;
+      will-change: transform;
+      transition: opacity 0.5s;
       pointer-events: none;
+      filter: blur(2px) brightness(1.08) drop-shadow(0 0 10px #fff2);
+    }
+
+    /* Large decorative moon */
+    .moon-bg {
       left: unset;
       right: 6vw;
       top: 7vh;
       width: 110px;
       height: 110px;
-      z-index: 1;
+      z-index: 2;
       opacity: 0.19;
     }
     .moon-bg svg {
@@ -191,11 +202,13 @@
       h2 { font-size: 1.3em; }
       .moon { width: 38px; height: 38px;}
       .moon-bg { width: 66px; height: 66px; right: 3vw;}
+      .cloud { width: 120px; height: 46px;}
     }
   </style>
   <script>
     // Star generator for witchy background
     document.addEventListener('DOMContentLoaded', () => {
+      // Stars
       const starsLayer = document.createElement('div');
       starsLayer.className = 'stars';
       document.body.appendChild(starsLayer);
@@ -204,10 +217,8 @@
       for (let i = 0; i < starCount; i++) {
         const star = document.createElement('div');
         star.className = 'star';
-        // Random position
         star.style.top = (Math.random() * 95) + 'vh';
         star.style.left = (Math.random() * 100) + 'vw';
-        // Random size and glow
         const size = Math.random() * 2.5 + 1.2;
         star.style.width = size + 'px';
         star.style.height = size + 'px';
@@ -219,6 +230,67 @@
         }
         starsLayer.appendChild(star);
       }
+
+      // Clouds
+      const cloudsLayer = document.createElement('div');
+      cloudsLayer.className = 'clouds';
+      document.body.appendChild(cloudsLayer);
+
+      // SVG cloud shapes
+      const cloudSVGs = [
+        `<svg viewBox="0 0 170 70"><ellipse cx="50" cy="40" rx="40" ry="22" fill="#fff"/><ellipse cx="90" cy="36" rx="32" ry="20" fill="#fff" /><ellipse cx="120" cy="44" rx="28" ry="16" fill="#fff"/><ellipse cx="77" cy="54" rx="22" ry="10" fill="#fff" /></svg>`,
+        `<svg viewBox="0 0 170 70"><ellipse cx="70" cy="40" rx="48" ry="24" fill="#fff"/><ellipse cx="125" cy="33" rx="25" ry="12" fill="#fff"/><ellipse cx="110" cy="50" rx="22" ry="11" fill="#fff"/></svg>`,
+        `<svg viewBox="0 0 170 70"><ellipse cx="60" cy="40" rx="37" ry="18" fill="#fff"/><ellipse cx="110" cy="40" rx="30" ry="15" fill="#fff"/><ellipse cx="90" cy="52" rx="20" ry="10" fill="#fff"/></svg>`
+      ];
+      const cloudCount = Math.max(5, Math.floor(window.innerWidth / 250));
+      const clouds = [];
+
+      for (let i = 0; i < cloudCount; i++) {
+        const cloud = document.createElement('div');
+        cloud.className = 'cloud';
+        cloud.innerHTML = cloudSVGs[Math.floor(Math.random() * cloudSVGs.length)];
+        // Random vertical position (avoid header/footer)
+        cloud.style.top = (10 + Math.random() * 60) + 'vh';
+        // Random initial left position
+        cloud.style.left = (Math.random() * 90) + 'vw';
+        // Random opacity for see-through effect
+        cloud.style.opacity = (0.28 + Math.random() * 0.42).toFixed(2);
+        // Random scale
+        if (Math.random() > 0.5) cloud.style.transform = 'scale(1.18)';
+        else if (Math.random() > 0.8) cloud.style.transform = 'scale(0.9)';
+        // Movement direction and speed
+        cloud.dataset.direction = Math.random() > 0.5 ? 'right' : 'left';
+        cloud.dataset.speed = (0.15 + Math.random() * 0.2).toFixed(3); // vw per frame
+        cloudsLayer.appendChild(cloud);
+        clouds.push(cloud);
+      }
+
+      // Animate clouds
+      function animateClouds() {
+        clouds.forEach(cloud => {
+          let left = parseFloat(cloud.style.left);
+          let dir = cloud.dataset.direction;
+          let speed = parseFloat(cloud.dataset.speed);
+          if (dir === 'right') {
+            left += speed;
+            if (left > 100) {
+              left = -20 + Math.random() * 5;
+              cloud.style.top = (10 + Math.random() * 60) + 'vh';
+              cloud.style.opacity = (0.28 + Math.random() * 0.42).toFixed(2);
+            }
+          } else {
+            left -= speed;
+            if (left < -20) {
+              left = 100 - Math.random() * 5;
+              cloud.style.top = (10 + Math.random() * 60) + 'vh';
+              cloud.style.opacity = (0.28 + Math.random() * 0.42).toFixed(2);
+            }
+          }
+          cloud.style.left = left + 'vw';
+        });
+        requestAnimationFrame(animateClouds);
+      }
+      animateClouds();
 
       // Add a large witchy crescent moon
       const moonBg = document.createElement('div');
