@@ -43,9 +43,7 @@
       top: 0;
       z-index: 0;
     }
-
     .stars { background: transparent; }
-
     .star {
       position: absolute;
       border-radius: 50%;
@@ -196,24 +194,24 @@
       opacity: 0.95;
       filter: grayscale(0.6) sepia(0.6) brightness(0.9);
     }
-    /* Stolas lore panel */
+    /* Stolas lore panel - improved alignment and border */
     .stolas-panel {
-      position: fixed;
-      top: 54px;
-      right: 0;
+      position: absolute;
+      top: 2em;
+      right: calc(50% - 350px - 20px); /* aligns with main panel edge + gap */
       width: 350px;
-      max-height: 84vh;
+      max-height: calc(100vh - 4em);
       overflow-y: auto;
       background: linear-gradient(120deg, #252a3d 85%, #191e2c 100%);
       color: #e5dcc2;
-      border-left: 8px solid #5e4b2a;
-      border-top: 8px solid #5e4b2a;
-      border-bottom: 8px solid #342b17;
-      border-radius: 16px 0 0 16px;
-      box-shadow: -1px 0 22px #000b, 0 0 6px #78613c;
-      padding: 2em 1.2em 1em 1.4em;
+      border-image: var(--medieval-border) var(--border-width) stretch;
+      border-width: var(--border-width);
+      border-style: solid;
+      border-radius: 18px;
+      box-shadow: 0 1px 32px #000c;
+      padding: 2.2em 1.2em 1em 1.4em;
       font-size: 1.04em;
-      z-index: 20;
+      z-index: 15;
       backdrop-filter: blur(2px);
     }
     .stolas-panel h2 {
@@ -237,14 +235,15 @@
       color: #e5dcc2;
       text-shadow: 0 1px 4px #000c;
     }
-    @media (max-width: 1100px) {
+    @media (max-width: 1400px) {
       .stolas-panel {
         position: static;
         width: 100%;
         max-height: none;
-        border-radius: 16px;
+        border-radius: 18px;
         margin: 2em auto;
         box-shadow: 0 2px 22px #000c;
+        right: 0;
       }
     }
     @media (max-width: 800px) {
@@ -402,14 +401,12 @@
     </section>
   </main>
 
-  <!-- Stolas Lore Panel - fixed right side -->
+  <!-- Stolas Lore Panel - fixed right side, lined up and bordered properly -->
   <aside class="stolas-panel">
     <h2>Stolas, Great Prince of Hell</h2>
     <p>
       Stolas, like his fellow Goetia demons, was once an angel in Heaven but it is not known which choir he was part of. Moreover, Stolas was somewhat pacifistic in nature though should not be confused with benevolence. His only real involvements in terms of 'conflict' was during the War in Heaven and aiding Lucifer's forces by guiding them to the appropriate destinations via the stars.<br><br>
-
       Because of aiding Lucifer, he fell from Heaven alongside the other rebel angels and after the establishment of Hell as a monarchy, he was promoted to the title of a Great Prince of Hell, or sometimes simply Prince. Like all the other demons of the Goetia, Stolas commands a particular number of demonic legions, specifically twenty-six.<br><br>
-
       His duties and skills are described as bearing superlative knowledge of astronomy, the value of precious stones, and the effectiveness of herbs or poisonous plants. And due to such knowledge, he would often share it with demonic blacksmiths like Mulciber to craft a weapon or object from such minerals by orders of their superiors or occasionally Stolas personally. He will impart that knowledge to those who summon him.
     </p>
     <h3>Appearance</h3>
