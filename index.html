@@ -194,13 +194,13 @@
       opacity: 0.95;
       filter: grayscale(0.6) sepia(0.6) brightness(0.9);
     }
-    /* Stolas lore panel - improved alignment and border */
+    /* Stolas lore panel - shorter, more to the right */
     .stolas-panel {
-      position: absolute;
-      top: 2em;
-      right: calc(50% - 350px - 20px); /* aligns with main panel edge + gap */
-      width: 350px;
-      max-height: calc(100vh - 4em);
+      position: fixed;
+      top: 3em;
+      right: 2em;
+      width: 310px;
+      height: 420px;
       overflow-y: auto;
       background: linear-gradient(120deg, #252a3d 85%, #191e2c 100%);
       color: #e5dcc2;
@@ -209,33 +209,33 @@
       border-style: solid;
       border-radius: 18px;
       box-shadow: 0 1px 32px #000c;
-      padding: 2.2em 1.2em 1em 1.4em;
-      font-size: 1.04em;
+      padding: 1.2em 1.2em 1em 1.1em;
+      font-size: 1.01em;
       z-index: 15;
       backdrop-filter: blur(2px);
     }
     .stolas-panel h2 {
       font-family: 'UnifrakturCook', cursive;
       color: #d0bb7d;
-      font-size: 1.45em;
+      font-size: 1.25em;
       margin-bottom: 0.3em;
       text-shadow: 0 1px 10px #000a;
     }
     .stolas-panel h3 {
       font-family: 'Quicksand', sans-serif;
       color: #bba26a;
-      font-size: 1.08em;
-      margin-top: 1.2em;
-      margin-bottom: 0.15em;
+      font-size: 1.01em;
+      margin-top: 1em;
+      margin-bottom: 0.1em;
       letter-spacing: 0.04em;
     }
     .stolas-panel p {
-      margin: 0.3em 0 0.7em 0;
-      line-height: 1.5;
+      margin: 0.2em 0 0.6em 0;
+      line-height: 1.45;
       color: #e5dcc2;
       text-shadow: 0 1px 4px #000c;
     }
-    @media (max-width: 1400px) {
+    @media (max-width: 1100px) {
       .stolas-panel {
         position: static;
         width: 100%;
@@ -244,6 +244,7 @@
         margin: 2em auto;
         box-shadow: 0 2px 22px #000c;
         right: 0;
+        height: auto;
       }
     }
     @media (max-width: 800px) {
@@ -401,7 +402,7 @@
     </section>
   </main>
 
-  <!-- Stolas Lore Panel - fixed right side, lined up and bordered properly -->
+  <!-- Stolas Lore Panel - shorter and moved more to the right -->
   <aside class="stolas-panel">
     <h2>Stolas, Great Prince of Hell</h2>
     <p>
