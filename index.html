@@ -196,6 +196,57 @@
       opacity: 0.95;
       filter: grayscale(0.6) sepia(0.6) brightness(0.9);
     }
+    /* Stolas lore panel */
+    .stolas-panel {
+      position: fixed;
+      top: 54px;
+      right: 0;
+      width: 350px;
+      max-height: 84vh;
+      overflow-y: auto;
+      background: linear-gradient(120deg, #252a3d 85%, #191e2c 100%);
+      color: #e5dcc2;
+      border-left: 8px solid #5e4b2a;
+      border-top: 8px solid #5e4b2a;
+      border-bottom: 8px solid #342b17;
+      border-radius: 16px 0 0 16px;
+      box-shadow: -1px 0 22px #000b, 0 0 6px #78613c;
+      padding: 2em 1.2em 1em 1.4em;
+      font-size: 1.04em;
+      z-index: 20;
+      backdrop-filter: blur(2px);
+    }
+    .stolas-panel h2 {
+      font-family: 'UnifrakturCook', cursive;
+      color: #d0bb7d;
+      font-size: 1.45em;
+      margin-bottom: 0.3em;
+      text-shadow: 0 1px 10px #000a;
+    }
+    .stolas-panel h3 {
+      font-family: 'Quicksand', sans-serif;
+      color: #bba26a;
+      font-size: 1.08em;
+      margin-top: 1.2em;
+      margin-bottom: 0.15em;
+      letter-spacing: 0.04em;
+    }
+    .stolas-panel p {
+      margin: 0.3em 0 0.7em 0;
+      line-height: 1.5;
+      color: #e5dcc2;
+      text-shadow: 0 1px 4px #000c;
+    }
+    @media (max-width: 1100px) {
+      .stolas-panel {
+        position: static;
+        width: 100%;
+        max-height: none;
+        border-radius: 16px;
+        margin: 2em auto;
+        box-shadow: 0 2px 22px #000c;
+      }
+    }
     @media (max-width: 800px) {
       main { margin: 1em; padding: 1em;}
       h1 { font-size: 2em; }
@@ -203,6 +254,7 @@
       .moon { width: 38px; height: 38px;}
       .moon-bg { width: 66px; height: 66px; right: 3vw;}
       .cloud { width: 120px; height: 46px;}
+      .stolas-panel { font-size: 0.97em; }
     }
   </style>
   <script>
@@ -249,16 +301,11 @@
         const cloud = document.createElement('div');
         cloud.className = 'cloud';
         cloud.innerHTML = cloudSVGs[Math.floor(Math.random() * cloudSVGs.length)];
-        // Random vertical position (avoid header/footer)
         cloud.style.top = (10 + Math.random() * 60) + 'vh';
-        // Random initial left position
         cloud.style.left = (Math.random() * 90) + 'vw';
-        // Random opacity for see-through effect
         cloud.style.opacity = (0.28 + Math.random() * 0.42).toFixed(2);
-        // Random scale
         if (Math.random() > 0.5) cloud.style.transform = 'scale(1.18)';
         else if (Math.random() > 0.8) cloud.style.transform = 'scale(0.9)';
-        // Movement direction and speed
         cloud.dataset.direction = Math.random() > 0.5 ? 'right' : 'left';
         cloud.dataset.speed = (0.15 + Math.random() * 0.2).toFixed(3); // vw per frame
         cloudsLayer.appendChild(cloud);
@@ -354,6 +401,33 @@
       </p>
     </section>
   </main>
+
+  <!-- Stolas Lore Panel - fixed right side -->
+  <aside class="stolas-panel">
+    <h2>Stolas, Great Prince of Hell</h2>
+    <p>
+      Stolas, like his fellow Goetia demons, was once an angel in Heaven but it is not known which choir he was part of. Moreover, Stolas was somewhat pacifistic in nature though should not be confused with benevolence. His only real involvements in terms of 'conflict' was during the War in Heaven and aiding Lucifer's forces by guiding them to the appropriate destinations via the stars.<br><br>
+
+      Because of aiding Lucifer, he fell from Heaven alongside the other rebel angels and after the establishment of Hell as a monarchy, he was promoted to the title of a Great Prince of Hell, or sometimes simply Prince. Like all the other demons of the Goetia, Stolas commands a particular number of demonic legions, specifically twenty-six.<br><br>
+
+      His duties and skills are described as bearing superlative knowledge of astronomy, the value of precious stones, and the effectiveness of herbs or poisonous plants. And due to such knowledge, he would often share it with demonic blacksmiths like Mulciber to craft a weapon or object from such minerals by orders of their superiors or occasionally Stolas personally. He will impart that knowledge to those who summon him.
+    </p>
+    <h3>Appearance</h3>
+    <p>
+      He is depicted as either being a crowned owl with long legs, a raven, or a man. His black raven is his demon form while his "angelic" form is that of a winged man with dark curly hair and blue eyes.
+    </p>
+    <h3>Personality</h3>
+    <p>
+      Stolas is one of the few rare demons that is pacifistic. He is not fond of fighting, finding the notion of wars and battles to be fruitless and pointless. His only real involvements in terms of 'conflict' was during the War in Heaven and aiding Lucifer's forces by guiding them to the appropriate destinations via the stars and to determine the exact location of an object via examining the mineral that surrounds it.<br><br>
+      Stolas finds comfort in his line work for according to him there is always something new to discover unlike war which is consistent and stays the same. He is fond of learning new developments and wants to expand his knowledge of what is out there in the universe instead of fighting in battles that will contribute to nothing except more battles to come. His pacifistic nature is noted by even Dante who does not consider him a threat and leaves him be despite the fact that Stolas is a very dangerous demon, regardless.
+    </p>
+    <h3>Power and Abilities</h3>
+    <p>
+      Stolas is a Great Prince of Hell and thus a powerful demon though compared to his peers he is less impressive. What he lacks in might, however, he makes up for in knowledge and intellect.<br><br>
+      He teaches astronomy and the knowledge of poisonous plants, herbs and precious stones. Knowledge of the stars is very important to the demons as are the uses of stones and herbs for magical and ritualistic purposes. Such knowledge makes him a reliable associate to his fellow Goetia nobles.
+    </p>
+  </aside>
+
   <footer>
     &copy; 2025 latreía of the owl. Blessed be!
   </footer>
