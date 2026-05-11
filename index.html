@@ -6,19 +6,20 @@
     <title>TRON</title>
     <style>
         :root {
-            --bg-color: #000000;
-            --grid-color: #001133;
-            --player-color: #0088ff; /* Blue (You) */
-            --ai-color: #ff0033;      /* Red (Enemy) */
+            /* Grid lines kept faint to not distract from the dark theme */
+            --grid-color: rgba(0, 100, 255, 0.15); 
+            --player-color: #0088ff;
+            --ai-color: #ff0033;
             --text-color: #00aaff;
-            --ui-bg: rgba(0, 5, 20, 0.9);
-            --circuit-color: rgba(0, 136, 255, 0.1);
+            /* Circuit color is now DEEP DARK BLUE */
+            --circuit-color: rgba(0, 50, 100, 0.4); 
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
 
         body {
-            background-color: var(--bg-color);
+            /* Back to Pure Black */
+            background-color: #000; 
             color: var(--text-color);
             font-family: 'Segoe UI', 'Courier New', monospace;
             height: 100vh;
@@ -29,41 +30,40 @@
 
         /* --- BACKGROUND LAYERS --- */
 
-        /* 1. Circuit Board Pattern (Faint) */
-        #circuit-bg {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -2;
-            opacity: 12;
-            /* CSS generated circuit pattern */
-            background-image: 
-                linear-gradient(90deg, transparent 24%, var(--circuit-color) 25%, var(--circuit-color) 26%, transparent 27%, transparent 74%, var(--circuit-color) 75%, var(--circuit-color) 76%, transparent 77%, transparent),
-                linear-gradient(0deg, transparent 24%, var(--circuit-color) 25%, var(--circuit-color) 26%, transparent 27%, transparent 74%, var(--circuit-color) 75%, var(--circuit-color) 76%, transparent 77%, transparent);
-            background-size: 100px 100px;
-        }
-
-        /* 2. Matrix Rain Canvas */
+        /* 1. Matrix Rain (DEEPEST LAYER) - Very Subtle */
         #matrix-canvas {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            opacity: 11; /* Faint */
+            z-index: -3; 
+            opacity: 0.15; /* Very faint green ghost */
             pointer-events: none;
+        }
+
+        /* 2. Circuit Board (MIDDLE LAYER) - Dark Blue Traces */
+        #circuit-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -2; 
+            opacity: 0.3; /* Visible but dark */
+            background-image: 
+                linear-gradient(90deg, transparent 90%, var(--circuit-color) 90%, var(--circuit-color) 100%),
+                linear-gradient(0deg, transparent 90%, var(--circuit-color) 90%, var(--circuit-color) 100%);
+            background-size: 50px 50px;
         }
 
         /* Audio Element */
         #bgm { display: none; }
 
-        /* UI Overlay - Fixed for perfect centering */
+        /* UI Overlay - Darkened to match theme */
         #ui-layer {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            /* Darker overlay for menus */
+            background: rgba(0, 0, 0, 0.85); 
             display: flex;
-            justify-content: center; /* Center horizontally */
-            align-items: center;     /* Center vertically */
+            justify-content: center;
+            align-items: center;
             z-index: 50;
-            backdrop-filter: blur(5px);
             transition: opacity 0.3s ease;
         }
 
@@ -73,8 +73,8 @@
             text-align: center;
             padding: 3rem 4rem;
             border: 1px solid var(--player-color);
-            box-shadow: 0 0 30px rgba(0, 136, 255, 0.3), inset 0 0 20px rgba(0, 136, 255, 0.1);
-            background: var(--ui-bg);
+            background: rgba(0, 5, 30, 0.95); 
+            box-shadow: 0 0 30px rgba(0, 136, 255, 0.5);
             max-width: 600px;
             position: relative;
         }
@@ -166,12 +166,11 @@
 
         canvas#c {
             display: block;
-            background-color: rgba(0,0,0,0.8); /* Semi-transparent to show matrix/bg slightly */
+            background-color: transparent; 
             background-image: 
                 linear-gradient(var(--grid-color) 1px, transparent 1px),
                 linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-            background-size: 12px 12px; /* Matches JS config */
-            box-shadow: 0 0 50px rgba(0,0,0,0.9);
+            background-size: 12px 12px;
         }
 
         .key { 
@@ -185,9 +184,9 @@
 </head>
 <body>
 
-    <!-- Background Layers -->
-    <div id="circuit-bg"></div>
+    <!-- Background Layers (Ordered Back to Front) -->
     <canvas id="matrix-canvas"></canvas>
+    <div id="circuit-bg"></div>
 
     <!-- Audio -->
     <audio id="bgm" loop>
@@ -217,9 +216,9 @@
             
             <div class="ui-content" id="start-screen">
                 <h2>TRON</h2>
-                <p>Enter the Grid.</p>
+                <p>Enter Grid.</p>
                 <p>Controls: <span class="key">Arrows</span> or <span class="key">WASD</span></p>
-                <p>Survive 50 Levels to defeat the Master Control Program.</p>
+                <p>Survive 50 Levels to defeat Master Control Program.</p>
                 <button id="btn-start">ENTER GRID</button>
             </div>
 
@@ -259,10 +258,11 @@
             const ypos = Array(cols).fill(0);
 
             function matrix() {
-                ctx.fillStyle = '#0001'; // Fade effect
+                // Fades to black slowly to create trails
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
                 ctx.fillRect(0, 0, width, height);
                 
-                ctx.fillStyle = '#0f0'; // Matrix green
+                ctx.fillStyle = '#0f0'; // Matrix Green
                 ctx.font = '15pt monospace';
                 
                 ypos.forEach((y, ind) => {
@@ -301,9 +301,9 @@
             stepInterval: 100
         };
 
-        // DOM Elements
         const canvas = document.getElementById('c');
-        const ctx = canvas.getContext('2d', { alpha: false });
+        // Critical: Keep alpha enabled for transparency
+        const ctx = canvas.getContext('2d'); 
         const scoreP1El = document.getElementById('score-p1');
         const scoreAiEl = document.getElementById('score-ai');
         const levelEl = document.getElementById('level-display');
@@ -318,10 +318,8 @@
         function id(s) { return document.getElementById(s); }
 
         function updateDifficulty() {
-            // Level 1 = 10fps, Level 50 = 25fps
             const speed = CONFIG.baseSpeed + (state.level * 0.3);
             state.stepInterval = 1000 / speed;
-            // AI Lookahead Ramp
             state.aiScanLimit = 100 + (state.level * 6);
         }
 
@@ -360,8 +358,7 @@
             }
 
             state.grid.fill(0);
-            ctx.fillStyle = '#000'; // Pure black for grid
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             levelEl.innerText = state.level;
             scoreP1El.innerText = state.scores.p1;
