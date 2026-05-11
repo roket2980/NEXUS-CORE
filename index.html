@@ -11,7 +11,8 @@
             --player-color: #0088ff; /* Blue (You) */
             --ai-color: #ff0033;      /* Red (Enemy) */
             --text-color: #00aaff;
-            --ui-bg: rgba(0, 10, 30, 0.95);
+            --ui-bg: rgba(0, 5, 20, 0.9);
+            --circuit-color: rgba(0, 136, 255, 0.1);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
@@ -22,88 +23,46 @@
             font-family: 'Segoe UI', 'Courier New', monospace;
             height: 100vh;
             width: 100vw;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             overflow: hidden;
-        }
-
-        /* Audio Element (Hidden) */
-        #bgm {
-            display: none;
-        }
-
-        header {
-            width: 100%;
-            padding: 10px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: absolute;
-            top: 0;
-            z-index: 10;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.95), transparent);
-            pointer-events: none;
-            border-bottom: 1px solid #004488;
-            box-shadow: 0 0 20px rgba(0, 136, 255, 0.2);
-        }
-
-        .hud-title {
-            font-size: 1.5rem;
-            font-weight: 900;
-            letter-spacing: 5px;
-            color: #fff;
-            text-shadow: 0 0 10px var(--player-color);
-        }
-
-        .hud-group {
-            display: flex;
-            gap: 30px;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            font-size: 1.1rem;
-            text-shadow: 0 0 5px currentColor;
-        }
-
-        .level-info { color: #fff; }
-        .p1-score { color: var(--player-color); }
-        .ai-score { color: var(--ai-color); }
-
-        main {
             position: relative;
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
-            border: 1px solid #004488;
-            width: 98vw;
-            height: 92vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #000;
         }
 
-        canvas {
-            display: block;
-            background-color: #000;
-            /* Grid Pattern */
+        /* --- BACKGROUND LAYERS --- */
+
+        /* 1. Circuit Board Pattern (Faint) */
+        #circuit-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -2;
+            opacity: 0.3;
+            /* CSS generated circuit pattern */
             background-image: 
-                linear-gradient(var(--grid-color) 1px, transparent 1px),
-                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-            background-size: 12px 12px; /* Matches JS config */
+                linear-gradient(90deg, transparent 24%, var(--circuit-color) 25%, var(--circuit-color) 26%, transparent 27%, transparent 74%, var(--circuit-color) 75%, var(--circuit-color) 76%, transparent 77%, transparent),
+                linear-gradient(0deg, transparent 24%, var(--circuit-color) 25%, var(--circuit-color) 26%, transparent 27%, transparent 74%, var(--circuit-color) 75%, var(--circuit-color) 76%, transparent 77%, transparent);
+            background-size: 100px 100px;
         }
 
+        /* 2. Matrix Rain Canvas */
+        #matrix-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            opacity: 0.15; /* Faint */
+            pointer-events: none;
+        }
+
+        /* Audio Element */
+        #bgm { display: none; }
+
+        /* UI Overlay - Fixed for perfect centering */
         #ui-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 20;
+            justify-content: center; /* Center horizontally */
+            align-items: center;     /* Center vertically */
+            z-index: 50;
             backdrop-filter: blur(5px);
             transition: opacity 0.3s ease;
         }
@@ -113,37 +72,30 @@
         .ui-content {
             text-align: center;
             padding: 3rem 4rem;
-            border: 2px solid var(--player-color);
-            box-shadow: 0 0 50px var(--player-color), inset 0 0 20px var(--player-color);
-            border-radius: 0;
+            border: 1px solid var(--player-color);
+            box-shadow: 0 0 30px rgba(0, 136, 255, 0.3), inset 0 0 20px rgba(0, 136, 255, 0.1);
             background: var(--ui-bg);
+            max-width: 600px;
             position: relative;
         }
 
-        .ui-content::before {
-            content: '';
-            position: absolute;
-            top: -2px; left: -2px; right: -2px; bottom: -2px;
-            border: 1px solid rgba(255,255,255,0.2);
-            z-index: -1;
-        }
-
-        h2 { 
+        .ui-content h2 { 
             font-size: 3.5rem; 
             margin-bottom: 0.5rem; 
             text-transform: uppercase; 
             letter-spacing: 8px;
             color: #fff;
+            text-shadow: 0 0 10px var(--player-color);
         }
 
-        h3 {
+        .ui-content h3 {
             font-size: 1.5rem;
             margin-bottom: 2rem;
             color: var(--text-color);
             letter-spacing: 2px;
         }
 
-        p { margin-bottom: 2rem; color: #88bbff; font-size: 1.1rem; line-height: 1.6; }
+        .ui-content p { margin-bottom: 2rem; color: #88bbff; font-size: 1.1rem; }
 
         button {
             background: transparent;
@@ -166,6 +118,62 @@
             box-shadow: 0 0 30px var(--player-color);
         }
 
+        /* --- GAME AREA --- */
+        header {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 20;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.95), transparent);
+            pointer-events: none;
+            border-bottom: 1px solid rgba(0, 136, 255, 0.3);
+        }
+
+        .hud-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: 6px;
+            color: #fff;
+            text-shadow: 0 0 10px var(--player-color);
+            pointer-events: auto;
+        }
+
+        .hud-group {
+            display: flex;
+            gap: 40px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-shadow: 0 0 5px currentColor;
+            pointer-events: auto;
+        }
+
+        .level-info { color: #fff; }
+        .p1-score { color: var(--player-color); }
+        .ai-score { color: var(--ai-color); }
+
+        main {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        canvas#c {
+            display: block;
+            background-color: rgba(0,0,0,0.8); /* Semi-transparent to show matrix/bg slightly */
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 12px 12px; /* Matches JS config */
+            box-shadow: 0 0 50px rgba(0,0,0,0.9);
+        }
+
         .key { 
             border: 1px solid var(--player-color); 
             padding: 2px 8px; 
@@ -177,13 +185,18 @@
 </head>
 <body>
 
-    <!-- 
-        AUDIO: 
-        To use Daft Punk - End of Line, download the mp3 file, name it 'end_of_line.mp3', 
-        place it in this folder, and change the src below to src="end_of_line.mp3".
-    -->
+    <!-- Background Layers -->
+    <div id="circuit-bg"></div>
+    <canvas id="matrix-canvas"></canvas>
+
+    <!-- Audio -->
     <audio id="bgm" loop>
-        <!-- Placeholder Cyberpunk track -->
+        <!-- 
+           AUDIO PLACEHOLDER:
+           Download "Daft Punk - End of Line", name it 'end_of_line.mp3',
+           put it in this folder, and uncomment the line below:
+        -->
+        <!-- <source src="end_of_line.mp3" type="audio/mpeg"> -->
         <source src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Tours/Enthusiast/Tours_-_01_-_Enthusiast.mp3" type="audio/mpeg">
     </audio>
 
@@ -199,8 +212,9 @@
     <main>
         <canvas id="c"></canvas>
         
+        <!-- Centered UI Overlay -->
         <div id="ui-layer">
-            <!-- Start Screen -->
+            
             <div class="ui-content" id="start-screen">
                 <h2>TRON</h2>
                 <p>Enter the Grid.</p>
@@ -209,7 +223,6 @@
                 <button id="btn-start">ENTER GRID</button>
             </div>
 
-            <!-- Level Complete -->
             <div class="ui-content hidden" id="level-screen">
                 <h2 style="color:var(--player-color)">DEREZIZED</h2>
                 <h3>LEVEL COMPLETE</h3>
@@ -218,32 +231,62 @@
                 <button id="btn-next">NEXT LEVEL</button>
             </div>
 
-            <!-- Game Over -->
             <div class="ui-content hidden" id="game-over-screen">
                 <h2 style="color:var(--ai-color)">TERMINATED</h2>
                 <h3>GAME OVER</h3>
                 <p id="result-message">You have been derezzed.</p>
                 <button id="btn-restart">RESTART SYSTEM</button>
             </div>
+
         </div>
     </main>
 
     <script>
-        /**
-         * Game Configuration
-         */
+        /* --- MATRIX BACKGROUND EFFECT --- */
+        (function() {
+            const canvas = document.getElementById('matrix-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            const cols = Math.floor(width / 20);
+            const ypos = Array(cols).fill(0);
+
+            function matrix() {
+                ctx.fillStyle = '#0001'; // Fade effect
+                ctx.fillRect(0, 0, width, height);
+                
+                ctx.fillStyle = '#0f0'; // Matrix green
+                ctx.font = '15pt monospace';
+                
+                ypos.forEach((y, ind) => {
+                    const text = String.fromCharCode(Math.random() * 128);
+                    const x = ind * 20;
+                    ctx.fillText(text, x, y);
+                    
+                    if (y > 100 + Math.random() * 10000) ypos[ind] = 0;
+                    else ypos[ind] = y + 20;
+                });
+            }
+            setInterval(matrix, 50);
+        })();
+
+        /* --- GAME LOGIC --- */
         const CONFIG = {
-            gridSize: 12,      // Smaller grid = Bigger playing field
-            baseSpeed: 10,     // Starting FPS
+            gridSize: 12,      
+            baseSpeed: 10,     
             cols: 0,
             rows: 0
         };
 
         const COLORS = { empty: 0, p1: 1, ai: 2 };
 
-        /**
-         * Game State
-         */
         const state = {
             running: false,
             grid: null,
@@ -274,21 +317,14 @@
 
         function id(s) { return document.getElementById(s); }
 
-        /**
-         * Level & Difficulty Logic
-         */
         function updateDifficulty() {
-            // Linear Speed Ramp: Level 1 = 10fps, Level 50 = ~25fps
+            // Level 1 = 10fps, Level 50 = 25fps
             const speed = CONFIG.baseSpeed + (state.level * 0.3);
             state.stepInterval = 1000 / speed;
-
-            // AI Lookahead Ramp: Level 1 = 100, Level 50 = 400
+            // AI Lookahead Ramp
             state.aiScanLimit = 100 + (state.level * 6);
         }
 
-        /**
-         * Initialization
-         */
         function resize() {
             const parent = canvas.parentElement;
             const width = parent.clientWidth;
@@ -313,13 +349,9 @@
         
         resize();
 
-        /**
-         * Core Game Logic
-         */
         function startGame(isNextLevel = false) {
-            updateDifficulty(); // Apply current level settings
+            updateDifficulty();
             
-            // If not next level, reset level to 1
             if (!isNextLevel) {
                 state.level = 1;
                 state.scores.p1 = 0;
@@ -327,12 +359,10 @@
                 audioEl.play().catch(e => console.log("Audio interaction required"));
             }
 
-            // Reset Board
             state.grid.fill(0);
-            ctx.fillStyle = '#000';
+            ctx.fillStyle = '#000'; // Pure black for grid
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // HUD
             levelEl.innerText = state.level;
             scoreP1El.innerText = state.scores.p1;
             scoreAiEl.innerText = state.scores.ai;
@@ -378,7 +408,7 @@
         }
 
         function update() {
-            // 1. Update Player
+            // P1
             if (state.p1.nextDx !== -state.p1.dx) { state.p1.dx = state.p1.nextDx; }
             if (state.p1.nextDy !== -state.p1.dy) { state.p1.dy = state.p1.nextDy; }
 
@@ -397,7 +427,7 @@
                 state.p1.dead = true;
             }
 
-            // 2. Update AI
+            // AI
             if (!state.ai.dead) {
                 const move = calculateAIMove();
                 state.ai.dx = move.dx;
@@ -423,13 +453,10 @@
                 }
             }
 
-            // 3. Check Game State
             if (state.p1.dead || state.ai.dead) {
                 if (!state.p1.dead && state.ai.dead) {
-                    // Win
                     winLevel();
                 } else {
-                    // Loss or Draw
                     endGame();
                 }
             }
@@ -440,22 +467,16 @@
 
         function winLevel() {
             state.running = false;
-            
-            // Prepare text for next level
             if (state.level >= 50) {
-                // Ultimate Win
                 alert("CONGRATULATIONS! YOU HAVE DEFEATED THE MCP.");
                 state.level = 1;
             } else {
                 state.level++;
-                
                 let diff = "NORMAL";
                 if (state.level > 10) diff = "HARD";
                 if (state.level > 25) diff = "RELENTLESS";
                 if (state.level > 40) diff = "GODLIKE";
-                
                 diffTextEl.innerText = diff;
-                
                 uiLayer.classList.remove('hidden');
                 levelScreen.classList.remove('hidden');
             }
@@ -463,22 +484,16 @@
 
         function endGame() {
             state.running = false;
-            let msg = "DEREZZED.";
-            
             uiLayer.classList.remove('hidden');
             gameOverScreen.classList.remove('hidden');
         }
 
-        /**
-         * AI LOGIC: SCALING HUNTER
-         */
         function calculateAIMove() {
             const cx = state.ai.x;
             const cy = state.ai.y;
             const cdx = state.ai.dx;
             const cdy = state.ai.dy;
 
-            // Options: Left, Straight, Right
             const moves = [
                 { dx: -cdy, dy: cdx }, // Left
                 { dx: cdx, dy: cdy },  // Straight
@@ -488,10 +503,8 @@
             let bestMove = moves[1];
             let maxScore = -99999;
 
-            // Level influences aggression and straight-lining
             const aggressionWeight = 10 + (state.level * 0.5); 
             const straightWeight = 40 + (state.level * 0.2);
-
             const distToPlayerStart = Math.hypot(cx - state.p1.x, cy - state.p1.y);
 
             for (let move of moves) {
@@ -500,27 +513,16 @@
 
                 if (isCollision(nx, ny)) continue;
 
-                // Survival
                 const spaceScore = runFloodFill(nx, ny);
-
-                // Straight Bonus (Human-like lines)
                 let straightBonus = 0;
-                if (move.dx === cdx && move.dy === cdy) {
-                    straightBonus = straightWeight;
-                }
+                if (move.dx === cdx && move.dy === cdy) straightBonus = straightWeight;
 
-                // Aggression (Closing distance)
                 const distToPlayerEnd = Math.hypot(nx - state.p1.x, ny - state.p1.y);
                 const distDiff = distToPlayerStart - distToPlayerEnd;
-                
                 let aggressionScore = 0;
-                if (spaceScore > 20) {
-                    aggressionScore = distDiff * aggressionWeight;
-                }
+                if (spaceScore > 20) aggressionScore = distDiff * aggressionWeight;
 
-                // Less randomness at higher levels
                 const randomFactor = Math.random() * (2 - (state.level * 0.02)); 
-                
                 const totalScore = spaceScore + straightBonus + aggressionScore + Math.max(0, randomFactor);
 
                 if (totalScore > maxScore) {
@@ -528,7 +530,6 @@
                     bestMove = move;
                 }
             }
-
             return bestMove || { dx: cdx, dy: cdy };
         }
 
@@ -538,22 +539,17 @@
             let visited = new Set();
             visited.add(`${startX},${startY}`);
             const dirs = [ {x:0, y:-1}, {x:1, y:0}, {x:0, y:1}, {x:-1, y:0} ];
-
-            // Use dynamic scan limit
             const limit = state.aiScanLimit || 150;
 
             while(queue.length > 0 && count < limit) {
                 const current = queue.shift();
                 count++;
-
                 for (let d of dirs) {
                     const nx = current.x + d.x;
                     const ny = current.y + d.y;
                     const key = `${nx},${ny}`;
-
                     if (nx < 0 || nx >= CONFIG.cols || ny < 0 || ny >= CONFIG.rows) continue;
                     if (state.grid[ny * CONFIG.cols + nx] !== COLORS.empty) continue;
-
                     if (!visited.has(key)) {
                         visited.add(key);
                         queue.push({x: nx, y: ny});
@@ -563,9 +559,6 @@
             return count;
         }
 
-        /**
-         * Rendering
-         */
         function drawSegment(x, y, color, glow) {
             const px = x * CONFIG.gridSize;
             const py = y * CONFIG.gridSize;
@@ -611,9 +604,6 @@
             requestAnimationFrame(gameLoop);
         }
 
-        /**
-         * Input
-         */
         window.addEventListener('keydown', (e) => {
             if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.code) > -1) e.preventDefault();
             if (!state.running) return;
