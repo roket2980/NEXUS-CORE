@@ -147,7 +147,8 @@
         .level-info { color: #fff; }
         .p1-score { color: var(--player-color); }
         .ai-score { color: var(--ai-color); }
-        .powerup-status { color: var(--powerup-color); display: none; }
+        .p1-turbo-status { color: var(--powerup-color); display: none; font-weight: bold; }
+        .ai-turbo-status { color: var(--powerup-color); display: none; font-weight: bold; }
 
         main {
             position: absolute;
@@ -192,8 +193,9 @@
         <div class="hud-group">
             <span class="level-info">LEVEL: <span id="level-display">1</span> / 50</span>
             <span class="p1-score">USER: <span id="score-p1">0</span></span>
+            <span class="p1-turbo-status" id="p1-turbo">TURBO</span>
             <span class="ai-score">PROGRAM: <span id="score-ai">0</span></span>
-            <span class="powerup-status" id="powerup-display">TURBO ACTIVE</span>
+            <span class="ai-turbo-status" id="ai-turbo">ENEMY TURBO</span>
         </div>
     </header>
 
@@ -205,7 +207,7 @@
                 <h2>TRON</h2>
                 <p>Enter Grid.</p>
                 <p>Controls: <span class="key">Arrows</span> or <span class="key">WASD</span></p>
-                <p>Yellow Powerups spawn every 30s. <br>Consume them for Turbo Boost.</p>
+                <p>Yellow Powerups spawn every 30s. <br>They boost individual speed.</p>
                 <button id="btn-start">ENTER GRID</button>
             </div>
 
@@ -258,9 +260,10 @@
         /* --- GAME LOGIC --- */
         const CONFIG = {
             gridSize: 12,      
-            baseSpeed: 10,
+            baseSpeed: 10, // Ticks per second
             powerupInterval: 30000, // 30 seconds
             powerupDuration: 10000,   // 10 seconds
+            turboMultiplier: 1.6,     // How much faster to go
             cols: 0,
             rows: 0
         };
@@ -272,17 +275,25 @@
             grid: null,
             level: 1,
             
-            p1: { x: 0, y: 0, dx: 0, dy: 0, nextDx: 0, nextDy: 0, dead: false, color: '#0088ff', glow: '#00aaff' },
-            ai: { x: 0, y: 0, dx: 0, dy: 0, nextDx: 0, nextDy: 0, dead: false, color: '#ff0033', glow: '#ff5566' },
+            // Entities
+            p1: { 
+                x: 0, y: 0, dx: 0, dy: 0, nextDx: 0, nextDy: 0, dead: false, 
+                color: '#0088ff', glow: '#00aaff',
+                accumulator: 0, moveInterval: 100,
+                turbo: false, turboTime: 0
+            },
+            ai: { 
+                x: 0, y: 0, dx: 0, dy: 0, nextDx: 0, nextDy: 0, dead: false, 
+                color: '#ff0033', glow: '#ff5566',
+                accumulator: 0, moveInterval: 100,
+                turbo: false, turboTime: 0
+            },
             
             scores: { p1: 0, ai: 0 },
             lastTime: 0,
-            accumulator: 0,
-            stepInterval: 100,
             
             // Powerup State
-            powerup: { x: -1, y: -1, active: false, spawnTime: 0, startTime: 0 },
-            isTurbo: false
+            powerup: { x: -1, y: -1, active: false, spawnTime: 0 }
         };
 
         const canvas = document.getElementById('c');
@@ -297,16 +308,24 @@
         const gameOverScreen = id('game-over-screen');
         const resultMsg = id('result-message');
         const audioEl = id('bgm');
-        const powerupDisplay = id('powerup-display');
+        const p1TurboEl = id('p1-turbo');
+        const aiTurboEl = id('ai-turbo');
 
         function id(s) { return document.getElementById(s); }
 
         function updateDifficulty() {
-            // Scaling Difficulty
-            const speed = CONFIG.baseSpeed + (state.level * 0.4); // Slightly faster scaling
-            state.stepInterval = 1000 / speed;
+            const speed = CONFIG.baseSpeed + (state.level * 0.4);
+            const interval = 1000 / speed;
             
-            // AI gets smarter: Looks further ahead
+            // Reset speeds to base level speed
+            state.p1.moveInterval = interval;
+            state.ai.moveInterval = interval;
+            
+            // Recalculate turbo speeds if active
+            if(state.p1.turbo) applyTurbo(state.p1);
+            if(state.ai.turbo) applyTurbo(state.ai);
+            
+            // AI gets smarter
             state.aiScanLimit = 100 + (state.level * 8); 
         }
 
@@ -338,13 +357,10 @@
             let valid = false;
             let px, py;
 
-            // Try to find an empty spot
             while(!valid && attempts < 100) {
                 px = Math.floor(Math.random() * CONFIG.cols);
                 py = Math.floor(Math.random() * CONFIG.rows);
-                // Check bounds buffer (don't spawn on edges)
                 if (px > 5 && px < CONFIG.cols - 5 && py > 5 && py < CONFIG.rows - 5) {
-                    // Check grid collision
                     if (state.grid[py * CONFIG.cols + px] === COLORS.empty) {
                         valid = true;
                     }
@@ -360,6 +376,63 @@
             }
         }
 
+        function applyTurbo(entity) {
+            // Individual speed boost
+            entity.moveInterval = (entity.moveInterval / CONFIG.turboMultiplier);
+            entity.turbo = true;
+            entity.turboTime = performance.now();
+        }
+
+        function updateEntity(currentTime, entity, isAI) {
+            // 1. Manage Turbo Timer
+            if (entity.turbo) {
+                if (currentTime - entity.turboTime > CONFIG.powerupDuration) {
+                    // Turbo Expire
+                    entity.turbo = false;
+                    updateDifficulty(); // Reset to normal level speed
+                }
+            }
+
+            // 2. Movement Logic
+            if (!entity.dead) {
+                let nextDx = entity.nextDx;
+                let nextDy = entity.nextDy;
+
+                // Only commit direction if not reversing
+                if (nextDx !== -entity.dx) entity.dx = nextDx;
+                if (nextDy !== -entity.dy) entity.dy = nextDy;
+
+                const nextX = entity.x + entity.dx;
+                const nextY = entity.y + entity.dy;
+
+                let crashed = false;
+
+                // Check Wall/Self Collision
+                if (isCollision(nextX, nextY)) {
+                    crashed = true;
+                }
+
+                // Check Enemy Collision (Head-on)
+                const enemy = isAI ? state.p1 : state.ai;
+                if (nextX === enemy.x && nextY === enemy.y) {
+                    // Head to head collision
+                    crashed = true;
+                    enemy.dead = true; // Enemy also dies
+                }
+
+                if (!crashed) {
+                    entity.x = nextX;
+                    entity.y = nextY;
+                    markGrid(entity.x, entity.y, isAI ? COLORS.ai : COLORS.p1);
+                    drawSegment(entity.x, entity.y, entity.color, entity.glow);
+                    
+                    if(isAI) state.scores.ai++; else state.scores.p1++;
+                } else {
+                    entity.dead = true;
+                }
+            }
+        }
+
         function startGame(isNextLevel = false) {
             updateDifficulty();
             
@@ -368,13 +441,14 @@
                 state.scores.p1 = 0;
                 state.scores.ai = 0;
                 state.powerup.active = false;
-                state.isTurbo = false;
-                state.lastTime = performance.now(); // Reset timer for powerups
+                state.p1.turbo = false;
+                state.ai.turbo = false;
+                state.lastTime = performance.now();
                 audioEl.play().catch(e => console.log("Audio interaction required"));
             } else {
-                // Keep powerup state on next level? No, reset for fairness
                 state.powerup.active = false;
-                state.isTurbo = false;
+                state.p1.turbo = false;
+                state.ai.turbo = false;
                 state.lastTime = performance.now(); 
             }
 
@@ -384,7 +458,8 @@
             levelEl.innerText = state.level;
             scoreP1El.innerText = state.scores.p1;
             scoreAiEl.innerText = state.scores.ai;
-            powerupDisplay.style.display = 'none';
+            p1TurboEl.style.display = 'none';
+            aiTurboEl.style.display = 'none';
 
             // Setup P1
             state.p1.x = 5;
@@ -392,6 +467,7 @@
             state.p1.dx = 1; state.p1.dy = 0; 
             state.p1.nextDx = 1; state.p1.nextDy = 0;
             state.p1.dead = false;
+            state.p1.accumulator = 0;
 
             // Setup AI
             state.ai.x = CONFIG.cols - 6;
@@ -399,13 +475,13 @@
             state.ai.dx = -1; state.ai.dy = 0; 
             state.ai.nextDx = -1; state.ai.nextDy = 0;
             state.ai.dead = false;
+            state.ai.accumulator = 0;
 
             markGrid(state.p1.x, state.p1.y, COLORS.p1);
             markGrid(state.ai.x, state.ai.y, COLORS.ai);
 
             state.running = true;
-            state.lastTime = performance.now(); // Ensure time is fresh
-            state.accumulator = 0;
+            state.lastTime = performance.now();
             
             uiLayer.classList.add('hidden');
             startScreen.classList.add('hidden');
@@ -427,81 +503,52 @@
         }
 
         function update(currentTime) {
-            // 1. Powerup Logic
-            // Check Spawn
+            // Powerup Spawn Timer
             if (!state.powerup.active && (currentTime - state.powerup.spawnTime > CONFIG.powerupInterval)) {
                 spawnPowerup();
                 state.powerup.spawnTime = currentTime;
             }
 
-            // Check Consumption
-            if (state.powerup.active && state.p1.x === state.powerup.x && state.p1.y === state.powerup.y) {
-                state.powerup.active = false; // Consume
-                state.isTurbo = true;
-                state.powerup.startTime = currentTime;
-                powerupDisplay.style.display = 'block';
-                // Visual cue: Flash screen slightly
-                ctx.fillStyle = 'rgba(255, 255, 0, 0.2)';
-                ctx.fillRect(0,0, canvas.width, canvas.height);
+            // --- INDIVIDUAL ENTITY UPDATES ---
+            
+            // 1. Update P1
+            if (!state.p1.dead) {
+                // Check Powerup Collision
+                if (state.powerup.active && state.p1.x === state.powerup.x && state.p1.y === state.powerup.y) {
+                    state.powerup.active = false;
+                    applyTurbo(state.p1);
+                    p1TurboEl.style.display = 'inline';
+                }
+            }
+            // Move P1 if enough time passed
+            state.p1.accumulator += (currentTime - state.lastTime); // approximate dt
+            if (state.p1.accumulator >= state.p1.moveInterval) {
+                updateEntity(currentTime, state.p1, false);
+                state.p1.accumulator -= state.p1.moveInterval;
             }
 
-            // Check Expire
-            if (state.isTurbo && (currentTime - state.powerup.startTime > CONFIG.powerupDuration)) {
-                state.isTurbo = false;
-                powerupDisplay.style.display = 'none';
-            }
-
-            // Adjust Speed based on Turbo
-            let currentStepInterval = state.stepInterval;
-            if (state.isTurbo) {
-                currentStepInterval /= 1.5; // 50% faster game speed
-            }
-
-            // 2. Update P1
-            if (state.p1.nextDx !== -state.p1.dx) { state.p1.dx = state.p1.nextDx; }
-            if (state.p1.nextDy !== -state.p1.dy) { state.p1.dy = state.p1.nextDy; }
-
-            const nextP1X = state.p1.x + state.p1.dx;
-            const nextP1Y = state.p1.y + state.p1.dy;
-
-            let p1Crashed = isCollision(nextP1X, nextP1Y);
-
-            if (!p1Crashed) {
-                state.p1.x = nextP1X;
-                state.p1.y = nextP1Y;
-                markGrid(state.p1.x, state.p1.y, COLORS.p1);
-                drawSegment(state.p1.x, state.p1.y, state.p1.color, state.p1.glow);
-                state.scores.p1++;
-            } else {
-                state.p1.dead = true;
-            }
-
-            // 3. Update AI
+            // 2. Update AI
             if (!state.ai.dead) {
+                // Check Powerup Collision
+                if (state.powerup.active && state.ai.x === state.powerup.x && state.ai.y === state.powerup.y) {
+                    state.powerup.active = false;
+                    applyTurbo(state.ai);
+                    aiTurboEl.style.display = 'inline';
+                }
+            }
+            // Move AI if enough time passed
+            state.ai.accumulator += (currentTime - state.lastTime);
+            if (state.ai.accumulator >= state.ai.moveInterval) {
+                // Calculate Move before moving
                 const move = calculateAIMove();
                 state.ai.dx = move.dx;
                 state.ai.dy = move.dy;
-
-                const nextAiX = state.ai.x + state.ai.dx;
-                const nextAiY = state.ai.y + state.ai.dy;
-
-                if (nextAiX === state.p1.x && nextAiY === state.p1.y) {
-                    state.ai.dead = true;
-                    state.p1.dead = true;
-                } else {
-                    let aiCrashed = isCollision(nextAiX, nextAiY);
-                    if (!aiCrashed) {
-                        state.ai.x = nextAiX;
-                        state.ai.y = nextAiY;
-                        markGrid(state.ai.x, state.ai.y, COLORS.ai);
-                        drawSegment(state.ai.x, state.ai.y, state.ai.color, state.ai.glow);
-                        state.scores.ai++;
-                    } else {
-                        state.ai.dead = true;
-                    }
-                }
+                
+                updateEntity(currentTime, state.ai, true);
+                state.ai.accumulator -= state.ai.moveInterval;
             }
 
+            // 3. Check Game Over
             if (state.p1.dead || state.ai.dead) {
                 if (!state.p1.dead && state.ai.dead) {
                     winLevel();
@@ -552,9 +599,7 @@
             let bestMove = moves[1];
             let maxScore = -99999;
 
-            // ADAPTIVE AI:
-            // Predict where player will be based on their velocity (Momentum)
-            // Higher level = further prediction = better cutting off
+            // Adaptive AI (Predict Player)
             const predictionSteps = 3 + Math.floor(state.level / 5); 
             const predPx = state.p1.x + (state.p1.dx * predictionSteps);
             const predPy = state.p1.y + (state.p1.dy * predictionSteps);
@@ -562,7 +607,7 @@
             const aggressionWeight = 10 + (state.level * 0.6); 
             const straightWeight = 40 + (state.level * 0.2);
             
-            // Distance to the PREDICTED point (Intercept)
+            // Distance to Player
             const distToPlayerStart = Math.hypot(cx - predPx, cy - predPy);
 
             for (let move of moves) {
@@ -580,8 +625,16 @@
                 let aggressionScore = 0;
                 if (spaceScore > 20) aggressionScore = distDiff * aggressionWeight;
 
+                // AI SEEKS POWERUP
+                let powerupScore = 0;
+                if (state.powerup.active) {
+                    const distToPowerup = Math.hypot(nx - state.powerup.x, ny - state.powerup.y);
+                    // High score incentive to get powerup
+                    powerupScore = (2000 - distToPowerup); 
+                }
+
                 const randomFactor = Math.random() * (2 - (state.level * 0.02)); 
-                const totalScore = spaceScore + straightBonus + aggressionScore + Math.max(0, randomFactor);
+                const totalScore = spaceScore + straightBonus + aggressionScore + powerupScore + Math.max(0, randomFactor);
 
                 if (totalScore > maxScore) {
                     maxScore = totalScore;
@@ -632,7 +685,6 @@
                 const px = state.powerup.x * CONFIG.gridSize;
                 const py = state.powerup.y * CONFIG.gridSize;
                 const time = performance.now();
-                // Pulsate effect
                 const pulse = Math.sin(time / 100) * 2;
                 
                 ctx.fillStyle = '#fff700';
@@ -668,16 +720,7 @@
             if (!state.running) return;
             const dt = time - state.lastTime;
             state.lastTime = time;
-            state.accumulator += dt;
-
-            // Calculate current speed interval (turbo vs normal)
-            let currentInterval = state.stepInterval;
-            if (state.isTurbo) currentInterval /= 1.5;
-
-            while (state.accumulator >= currentInterval) {
-                update(time);
-                state.accumulator -= currentInterval;
-            }
+            update(time);
             drawHeads();
             drawPowerup();
             requestAnimationFrame(gameLoop);
