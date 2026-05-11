@@ -6,19 +6,17 @@
     <title>TRON</title>
     <style>
         :root {
-            /* Grid lines kept faint to not distract from the dark theme */
             --grid-color: rgba(0, 100, 255, 0.15); 
             --player-color: #0088ff;
             --ai-color: #ff0033;
             --text-color: #00aaff;
-            /* Circuit color is now DEEP DARK BLUE */
             --circuit-color: rgba(0, 50, 100, 0.4); 
+            --powerup-color: #fff700;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
 
         body {
-            /* Back to Pure Black */
             background-color: #000; 
             color: var(--text-color);
             font-family: 'Segoe UI', 'Courier New', monospace;
@@ -29,36 +27,31 @@
         }
 
         /* --- BACKGROUND LAYERS --- */
-
-        /* 1. Matrix Rain (DEEPEST LAYER) - Very Subtle */
         #matrix-canvas {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: -3; 
-            opacity: 0.15; /* Very faint green ghost */
+            opacity: 0.15; 
             pointer-events: none;
         }
 
-        /* 2. Circuit Board (MIDDLE LAYER) - Dark Blue Traces */
         #circuit-bg {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: -2; 
-            opacity: 0.3; /* Visible but dark */
+            opacity: 0.3; 
             background-image: 
                 linear-gradient(90deg, transparent 90%, var(--circuit-color) 90%, var(--circuit-color) 100%),
                 linear-gradient(0deg, transparent 90%, var(--circuit-color) 90%, var(--circuit-color) 100%);
             background-size: 50px 50px;
         }
 
-        /* Audio Element */
         #bgm { display: none; }
 
-        /* UI Overlay - Darkened to match theme */
+        /* UI Overlay */
         #ui-layer {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            /* Darker overlay for menus */
             background: rgba(0, 0, 0, 0.85); 
             display: flex;
             justify-content: center;
@@ -154,6 +147,7 @@
         .level-info { color: #fff; }
         .p1-score { color: var(--player-color); }
         .ai-score { color: var(--ai-color); }
+        .powerup-status { color: var(--powerup-color); display: none; }
 
         main {
             position: absolute;
@@ -184,18 +178,12 @@
 </head>
 <body>
 
-    <!-- Background Layers (Ordered Back to Front) -->
+    <!-- Background Layers -->
     <canvas id="matrix-canvas"></canvas>
     <div id="circuit-bg"></div>
 
     <!-- Audio -->
     <audio id="bgm" loop>
-        <!-- 
-           AUDIO PLACEHOLDER:
-           Download "Daft Punk - End of Line", name it 'end_of_line.mp3',
-           put it in this folder, and uncomment the line below:
-        -->
-        <!-- <source src="end_of_line.mp3" type="audio/mpeg"> -->
         <source src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Tours/Enthusiast/Tours_-_01_-_Enthusiast.mp3" type="audio/mpeg">
     </audio>
 
@@ -205,20 +193,19 @@
             <span class="level-info">LEVEL: <span id="level-display">1</span> / 50</span>
             <span class="p1-score">USER: <span id="score-p1">0</span></span>
             <span class="ai-score">PROGRAM: <span id="score-ai">0</span></span>
+            <span class="powerup-status" id="powerup-display">TURBO ACTIVE</span>
         </div>
     </header>
 
     <main>
         <canvas id="c"></canvas>
         
-        <!-- Centered UI Overlay -->
         <div id="ui-layer">
-            
             <div class="ui-content" id="start-screen">
                 <h2>TRON</h2>
                 <p>Enter Grid.</p>
                 <p>Controls: <span class="key">Arrows</span> or <span class="key">WASD</span></p>
-                <p>Survive 50 Levels to defeat Master Control Program.</p>
+                <p>Yellow Powerups spawn every 30s. <br>Consume them for Turbo Boost.</p>
                 <button id="btn-start">ENTER GRID</button>
             </div>
 
@@ -236,7 +223,6 @@
                 <p id="result-message">You have been derezzed.</p>
                 <button id="btn-restart">RESTART SYSTEM</button>
             </div>
-
         </div>
     </main>
 
@@ -245,31 +231,23 @@
         (function() {
             const canvas = document.getElementById('matrix-canvas');
             const ctx = canvas.getContext('2d');
-            
             let width = canvas.width = window.innerWidth;
             let height = canvas.height = window.innerHeight;
-
             window.addEventListener('resize', () => {
                 width = canvas.width = window.innerWidth;
                 height = canvas.height = window.innerHeight;
             });
-
             const cols = Math.floor(width / 20);
             const ypos = Array(cols).fill(0);
-
             function matrix() {
-                // Fades to black slowly to create trails
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
                 ctx.fillRect(0, 0, width, height);
-                
-                ctx.fillStyle = '#0f0'; // Matrix Green
+                ctx.fillStyle = '#0f0'; 
                 ctx.font = '15pt monospace';
-                
                 ypos.forEach((y, ind) => {
                     const text = String.fromCharCode(Math.random() * 128);
                     const x = ind * 20;
                     ctx.fillText(text, x, y);
-                    
                     if (y > 100 + Math.random() * 10000) ypos[ind] = 0;
                     else ypos[ind] = y + 20;
                 });
@@ -280,12 +258,14 @@
         /* --- GAME LOGIC --- */
         const CONFIG = {
             gridSize: 12,      
-            baseSpeed: 10,     
+            baseSpeed: 10,
+            powerupInterval: 30000, // 30 seconds
+            powerupDuration: 10000,   // 10 seconds
             cols: 0,
             rows: 0
         };
 
-        const COLORS = { empty: 0, p1: 1, ai: 2 };
+        const COLORS = { empty: 0, p1: 1, ai: 2, powerup: 3 };
 
         const state = {
             running: false,
@@ -298,11 +278,14 @@
             scores: { p1: 0, ai: 0 },
             lastTime: 0,
             accumulator: 0,
-            stepInterval: 100
+            stepInterval: 100,
+            
+            // Powerup State
+            powerup: { x: -1, y: -1, active: false, spawnTime: 0, startTime: 0 },
+            isTurbo: false
         };
 
         const canvas = document.getElementById('c');
-        // Critical: Keep alpha enabled for transparency
         const ctx = canvas.getContext('2d'); 
         const scoreP1El = document.getElementById('score-p1');
         const scoreAiEl = document.getElementById('score-ai');
@@ -314,26 +297,27 @@
         const gameOverScreen = id('game-over-screen');
         const resultMsg = id('result-message');
         const audioEl = id('bgm');
+        const powerupDisplay = id('powerup-display');
 
         function id(s) { return document.getElementById(s); }
 
         function updateDifficulty() {
-            const speed = CONFIG.baseSpeed + (state.level * 0.3);
+            // Scaling Difficulty
+            const speed = CONFIG.baseSpeed + (state.level * 0.4); // Slightly faster scaling
             state.stepInterval = 1000 / speed;
-            state.aiScanLimit = 100 + (state.level * 6);
+            
+            // AI gets smarter: Looks further ahead
+            state.aiScanLimit = 100 + (state.level * 8); 
         }
 
         function resize() {
             const parent = canvas.parentElement;
             const width = parent.clientWidth;
             const height = parent.clientHeight;
-
             CONFIG.cols = Math.floor(width / CONFIG.gridSize);
             CONFIG.rows = Math.floor(height / CONFIG.gridSize);
-
             canvas.width = CONFIG.cols * CONFIG.gridSize;
             canvas.height = CONFIG.rows * CONFIG.gridSize;
-            
             initGrid();
         }
 
@@ -347,6 +331,35 @@
         
         resize();
 
+        function spawnPowerup() {
+            if (state.powerup.active) return;
+            
+            let attempts = 0;
+            let valid = false;
+            let px, py;
+
+            // Try to find an empty spot
+            while(!valid && attempts < 100) {
+                px = Math.floor(Math.random() * CONFIG.cols);
+                py = Math.floor(Math.random() * CONFIG.rows);
+                // Check bounds buffer (don't spawn on edges)
+                if (px > 5 && px < CONFIG.cols - 5 && py > 5 && py < CONFIG.rows - 5) {
+                    // Check grid collision
+                    if (state.grid[py * CONFIG.cols + px] === COLORS.empty) {
+                        valid = true;
+                    }
+                }
+                attempts++;
+            }
+
+            if (valid) {
+                state.powerup.x = px;
+                state.powerup.y = py;
+                state.powerup.active = true;
+                state.powerup.spawnTime = performance.now();
+            }
+        }
+
         function startGame(isNextLevel = false) {
             updateDifficulty();
             
@@ -354,7 +367,15 @@
                 state.level = 1;
                 state.scores.p1 = 0;
                 state.scores.ai = 0;
+                state.powerup.active = false;
+                state.isTurbo = false;
+                state.lastTime = performance.now(); // Reset timer for powerups
                 audioEl.play().catch(e => console.log("Audio interaction required"));
+            } else {
+                // Keep powerup state on next level? No, reset for fairness
+                state.powerup.active = false;
+                state.isTurbo = false;
+                state.lastTime = performance.now(); 
             }
 
             state.grid.fill(0);
@@ -363,15 +384,16 @@
             levelEl.innerText = state.level;
             scoreP1El.innerText = state.scores.p1;
             scoreAiEl.innerText = state.scores.ai;
+            powerupDisplay.style.display = 'none';
 
-            // Setup P1 (Left side)
+            // Setup P1
             state.p1.x = 5;
             state.p1.y = Math.floor(CONFIG.rows / 2);
             state.p1.dx = 1; state.p1.dy = 0; 
             state.p1.nextDx = 1; state.p1.nextDy = 0;
             state.p1.dead = false;
 
-            // Setup AI (Right side)
+            // Setup AI
             state.ai.x = CONFIG.cols - 6;
             state.ai.y = Math.floor(CONFIG.rows / 2);
             state.ai.dx = -1; state.ai.dy = 0; 
@@ -382,7 +404,7 @@
             markGrid(state.ai.x, state.ai.y, COLORS.ai);
 
             state.running = true;
-            state.lastTime = performance.now();
+            state.lastTime = performance.now(); // Ensure time is fresh
             state.accumulator = 0;
             
             uiLayer.classList.add('hidden');
@@ -404,8 +426,38 @@
             return state.grid[y * CONFIG.cols + x] !== COLORS.empty;
         }
 
-        function update() {
-            // P1
+        function update(currentTime) {
+            // 1. Powerup Logic
+            // Check Spawn
+            if (!state.powerup.active && (currentTime - state.powerup.spawnTime > CONFIG.powerupInterval)) {
+                spawnPowerup();
+                state.powerup.spawnTime = currentTime;
+            }
+
+            // Check Consumption
+            if (state.powerup.active && state.p1.x === state.powerup.x && state.p1.y === state.powerup.y) {
+                state.powerup.active = false; // Consume
+                state.isTurbo = true;
+                state.powerup.startTime = currentTime;
+                powerupDisplay.style.display = 'block';
+                // Visual cue: Flash screen slightly
+                ctx.fillStyle = 'rgba(255, 255, 0, 0.2)';
+                ctx.fillRect(0,0, canvas.width, canvas.height);
+            }
+
+            // Check Expire
+            if (state.isTurbo && (currentTime - state.powerup.startTime > CONFIG.powerupDuration)) {
+                state.isTurbo = false;
+                powerupDisplay.style.display = 'none';
+            }
+
+            // Adjust Speed based on Turbo
+            let currentStepInterval = state.stepInterval;
+            if (state.isTurbo) {
+                currentStepInterval /= 1.5; // 50% faster game speed
+            }
+
+            // 2. Update P1
             if (state.p1.nextDx !== -state.p1.dx) { state.p1.dx = state.p1.nextDx; }
             if (state.p1.nextDy !== -state.p1.dy) { state.p1.dy = state.p1.nextDy; }
 
@@ -424,7 +476,7 @@
                 state.p1.dead = true;
             }
 
-            // AI
+            // 3. Update AI
             if (!state.ai.dead) {
                 const move = calculateAIMove();
                 state.ai.dx = move.dx;
@@ -500,9 +552,18 @@
             let bestMove = moves[1];
             let maxScore = -99999;
 
-            const aggressionWeight = 10 + (state.level * 0.5); 
+            // ADAPTIVE AI:
+            // Predict where player will be based on their velocity (Momentum)
+            // Higher level = further prediction = better cutting off
+            const predictionSteps = 3 + Math.floor(state.level / 5); 
+            const predPx = state.p1.x + (state.p1.dx * predictionSteps);
+            const predPy = state.p1.y + (state.p1.dy * predictionSteps);
+
+            const aggressionWeight = 10 + (state.level * 0.6); 
             const straightWeight = 40 + (state.level * 0.2);
-            const distToPlayerStart = Math.hypot(cx - state.p1.x, cy - state.p1.y);
+            
+            // Distance to the PREDICTED point (Intercept)
+            const distToPlayerStart = Math.hypot(cx - predPx, cy - predPy);
 
             for (let move of moves) {
                 const nx = cx + move.dx;
@@ -514,7 +575,7 @@
                 let straightBonus = 0;
                 if (move.dx === cdx && move.dy === cdy) straightBonus = straightWeight;
 
-                const distToPlayerEnd = Math.hypot(nx - state.p1.x, ny - state.p1.y);
+                const distToPlayerEnd = Math.hypot(nx - predPx, ny - predPy);
                 const distDiff = distToPlayerStart - distToPlayerEnd;
                 let aggressionScore = 0;
                 if (spaceScore > 20) aggressionScore = distDiff * aggressionWeight;
@@ -566,6 +627,22 @@
             ctx.shadowBlur = 0;
         }
 
+        function drawPowerup() {
+            if (state.powerup.active) {
+                const px = state.powerup.x * CONFIG.gridSize;
+                const py = state.powerup.y * CONFIG.gridSize;
+                const time = performance.now();
+                // Pulsate effect
+                const pulse = Math.sin(time / 100) * 2;
+                
+                ctx.fillStyle = '#fff700';
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#fff700';
+                ctx.fillRect(px + 2 - pulse, py + 2 - pulse, CONFIG.gridSize - 4 + (pulse*2), CONFIG.gridSize - 4 + (pulse*2));
+                ctx.shadowBlur = 0;
+            }
+        }
+
         function drawHeads() {
             if (!state.p1.dead) {
                 const px = state.p1.x * CONFIG.gridSize;
@@ -593,11 +670,16 @@
             state.lastTime = time;
             state.accumulator += dt;
 
-            while (state.accumulator >= state.stepInterval) {
-                update();
-                state.accumulator -= state.stepInterval;
+            // Calculate current speed interval (turbo vs normal)
+            let currentInterval = state.stepInterval;
+            if (state.isTurbo) currentInterval /= 1.5;
+
+            while (state.accumulator >= currentInterval) {
+                update(time);
+                state.accumulator -= currentInterval;
             }
             drawHeads();
+            drawPowerup();
             requestAnimationFrame(gameLoop);
         }
 
