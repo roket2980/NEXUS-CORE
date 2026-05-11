@@ -1,6 +1,635 @@
-<body id=b onkeyup=e=event onload=
-z=c.getContext('2d');
-z.fillRect(s=0,0,n=150,x=11325);
-setInterval(" 0<x%n &x<n*n &(z[x+=[1,-n,-1,n][e.which&3]]^=1) ? 
-z.clearRect(x%n,x/n,1,1,s++) :b.innerHTML='game⬜over:'+s ",9)
-><canvas id=c>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRON</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --grid-color: #001133;
+            --player-color: #0088ff; /* Blue (You) */
+            --ai-color: #ff0033;      /* Red (Enemy) */
+            --text-color: #00aaff;
+            --ui-bg: rgba(0, 10, 30, 0.95);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', 'Courier New', monospace;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Audio Element (Hidden) */
+        #bgm {
+            display: none;
+        }
+
+        header {
+            width: 100%;
+            padding: 10px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: absolute;
+            top: 0;
+            z-index: 10;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.95), transparent);
+            pointer-events: none;
+            border-bottom: 1px solid #004488;
+            box-shadow: 0 0 20px rgba(0, 136, 255, 0.2);
+        }
+
+        .hud-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: 5px;
+            color: #fff;
+            text-shadow: 0 0 10px var(--player-color);
+        }
+
+        .hud-group {
+            display: flex;
+            gap: 30px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-shadow: 0 0 5px currentColor;
+        }
+
+        .level-info { color: #fff; }
+        .p1-score { color: var(--player-color); }
+        .ai-score { color: var(--ai-color); }
+
+        main {
+            position: relative;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
+            border: 1px solid #004488;
+            width: 98vw;
+            height: 92vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+        }
+
+        canvas {
+            display: block;
+            background-color: #000;
+            /* Grid Pattern */
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 12px 12px; /* Matches JS config */
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            backdrop-filter: blur(5px);
+            transition: opacity 0.3s ease;
+        }
+
+        .hidden { opacity: 0; pointer-events: none; }
+
+        .ui-content {
+            text-align: center;
+            padding: 3rem 4rem;
+            border: 2px solid var(--player-color);
+            box-shadow: 0 0 50px var(--player-color), inset 0 0 20px var(--player-color);
+            border-radius: 0;
+            background: var(--ui-bg);
+            position: relative;
+        }
+
+        .ui-content::before {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            border: 1px solid rgba(255,255,255,0.2);
+            z-index: -1;
+        }
+
+        h2 { 
+            font-size: 3.5rem; 
+            margin-bottom: 0.5rem; 
+            text-transform: uppercase; 
+            letter-spacing: 8px;
+            color: #fff;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            color: var(--text-color);
+            letter-spacing: 2px;
+        }
+
+        p { margin-bottom: 2rem; color: #88bbff; font-size: 1.1rem; line-height: 1.6; }
+
+        button {
+            background: transparent;
+            color: var(--player-color);
+            border: 2px solid var(--player-color);
+            padding: 15px 50px;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            font-family: inherit;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: var(--player-color);
+            color: #000;
+            box-shadow: 0 0 30px var(--player-color);
+        }
+
+        .key { 
+            border: 1px solid var(--player-color); 
+            padding: 2px 8px; 
+            border-radius: 2px; 
+            color: #fff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 
+        AUDIO: 
+        To use Daft Punk - End of Line, download the mp3 file, name it 'end_of_line.mp3', 
+        place it in this folder, and change the src below to src="end_of_line.mp3".
+    -->
+    <audio id="bgm" loop>
+        <!-- Placeholder Cyberpunk track -->
+        <source src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Tours/Enthusiast/Tours_-_01_-_Enthusiast.mp3" type="audio/mpeg">
+    </audio>
+
+    <header>
+        <div class="hud-title">TRON</div>
+        <div class="hud-group">
+            <span class="level-info">LEVEL: <span id="level-display">1</span> / 50</span>
+            <span class="p1-score">USER: <span id="score-p1">0</span></span>
+            <span class="ai-score">PROGRAM: <span id="score-ai">0</span></span>
+        </div>
+    </header>
+
+    <main>
+        <canvas id="c"></canvas>
+        
+        <div id="ui-layer">
+            <!-- Start Screen -->
+            <div class="ui-content" id="start-screen">
+                <h2>TRON</h2>
+                <p>Enter the Grid.</p>
+                <p>Controls: <span class="key">Arrows</span> or <span class="key">WASD</span></p>
+                <p>Survive 50 Levels to defeat the Master Control Program.</p>
+                <button id="btn-start">ENTER GRID</button>
+            </div>
+
+            <!-- Level Complete -->
+            <div class="ui-content hidden" id="level-screen">
+                <h2 style="color:var(--player-color)">DEREZIZED</h2>
+                <h3>LEVEL COMPLETE</h3>
+                <p>Threat eliminated. System upgrading...</p>
+                <p>Next Difficulty: <span id="next-diff-text">AGGRESSIVE</span></p>
+                <button id="btn-next">NEXT LEVEL</button>
+            </div>
+
+            <!-- Game Over -->
+            <div class="ui-content hidden" id="game-over-screen">
+                <h2 style="color:var(--ai-color)">TERMINATED</h2>
+                <h3>GAME OVER</h3>
+                <p id="result-message">You have been derezzed.</p>
+                <button id="btn-restart">RESTART SYSTEM</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        /**
+         * Game Configuration
+         */
+        const CONFIG = {
+            gridSize: 12,      // Smaller grid = Bigger playing field
+            baseSpeed: 10,     // Starting FPS
+            cols: 0,
+            rows: 0
+        };
+
+        const COLORS = { empty: 0, p1: 1, ai: 2 };
+
+        /**
+         * Game State
+         */
+        const state = {
+            running: false,
+            grid: null,
+            level: 1,
+            
+            p1: { x: 0, y: 0, dx: 0, dy: 0, nextDx: 0, nextDy: 0, dead: false, color: '#0088ff', glow: '#00aaff' },
+            ai: { x: 0, y: 0, dx: 0, dy: 0, nextDx: 0, nextDy: 0, dead: false, color: '#ff0033', glow: '#ff5566' },
+            
+            scores: { p1: 0, ai: 0 },
+            lastTime: 0,
+            accumulator: 0,
+            stepInterval: 100
+        };
+
+        // DOM Elements
+        const canvas = document.getElementById('c');
+        const ctx = canvas.getContext('2d', { alpha: false });
+        const scoreP1El = document.getElementById('score-p1');
+        const scoreAiEl = document.getElementById('score-ai');
+        const levelEl = document.getElementById('level-display');
+        const diffTextEl = document.getElementById('next-diff-text');
+        const uiLayer = document.getElementById('ui-layer');
+        const startScreen = document.getElementById('start-screen');
+        const levelScreen = id('level-screen');
+        const gameOverScreen = id('game-over-screen');
+        const resultMsg = id('result-message');
+        const audioEl = id('bgm');
+
+        function id(s) { return document.getElementById(s); }
+
+        /**
+         * Level & Difficulty Logic
+         */
+        function updateDifficulty() {
+            // Linear Speed Ramp: Level 1 = 10fps, Level 50 = ~25fps
+            const speed = CONFIG.baseSpeed + (state.level * 0.3);
+            state.stepInterval = 1000 / speed;
+
+            // AI Lookahead Ramp: Level 1 = 100, Level 50 = 400
+            state.aiScanLimit = 100 + (state.level * 6);
+        }
+
+        /**
+         * Initialization
+         */
+        function resize() {
+            const parent = canvas.parentElement;
+            const width = parent.clientWidth;
+            const height = parent.clientHeight;
+
+            CONFIG.cols = Math.floor(width / CONFIG.gridSize);
+            CONFIG.rows = Math.floor(height / CONFIG.gridSize);
+
+            canvas.width = CONFIG.cols * CONFIG.gridSize;
+            canvas.height = CONFIG.rows * CONFIG.gridSize;
+            
+            initGrid();
+        }
+
+        function initGrid() {
+            state.grid = new Uint8Array(CONFIG.cols * CONFIG.rows);
+        }
+
+        window.addEventListener('resize', () => {
+            if(!state.running) resize();
+        });
+        
+        resize();
+
+        /**
+         * Core Game Logic
+         */
+        function startGame(isNextLevel = false) {
+            updateDifficulty(); // Apply current level settings
+            
+            // If not next level, reset level to 1
+            if (!isNextLevel) {
+                state.level = 1;
+                state.scores.p1 = 0;
+                state.scores.ai = 0;
+                audioEl.play().catch(e => console.log("Audio interaction required"));
+            }
+
+            // Reset Board
+            state.grid.fill(0);
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // HUD
+            levelEl.innerText = state.level;
+            scoreP1El.innerText = state.scores.p1;
+            scoreAiEl.innerText = state.scores.ai;
+
+            // Setup P1 (Left side)
+            state.p1.x = 5;
+            state.p1.y = Math.floor(CONFIG.rows / 2);
+            state.p1.dx = 1; state.p1.dy = 0; 
+            state.p1.nextDx = 1; state.p1.nextDy = 0;
+            state.p1.dead = false;
+
+            // Setup AI (Right side)
+            state.ai.x = CONFIG.cols - 6;
+            state.ai.y = Math.floor(CONFIG.rows / 2);
+            state.ai.dx = -1; state.ai.dy = 0; 
+            state.ai.nextDx = -1; state.ai.nextDy = 0;
+            state.ai.dead = false;
+
+            markGrid(state.p1.x, state.p1.y, COLORS.p1);
+            markGrid(state.ai.x, state.ai.y, COLORS.ai);
+
+            state.running = true;
+            state.lastTime = performance.now();
+            state.accumulator = 0;
+            
+            uiLayer.classList.add('hidden');
+            startScreen.classList.add('hidden');
+            levelScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function markGrid(x, y, type) {
+            if (x >= 0 && x < CONFIG.cols && y >= 0 && y < CONFIG.rows) {
+                state.grid[y * CONFIG.cols + x] = type;
+            }
+        }
+
+        function isCollision(x, y) {
+            if (x < 0 || x >= CONFIG.cols || y < 0 || y >= CONFIG.rows) return true;
+            return state.grid[y * CONFIG.cols + x] !== COLORS.empty;
+        }
+
+        function update() {
+            // 1. Update Player
+            if (state.p1.nextDx !== -state.p1.dx) { state.p1.dx = state.p1.nextDx; }
+            if (state.p1.nextDy !== -state.p1.dy) { state.p1.dy = state.p1.nextDy; }
+
+            const nextP1X = state.p1.x + state.p1.dx;
+            const nextP1Y = state.p1.y + state.p1.dy;
+
+            let p1Crashed = isCollision(nextP1X, nextP1Y);
+
+            if (!p1Crashed) {
+                state.p1.x = nextP1X;
+                state.p1.y = nextP1Y;
+                markGrid(state.p1.x, state.p1.y, COLORS.p1);
+                drawSegment(state.p1.x, state.p1.y, state.p1.color, state.p1.glow);
+                state.scores.p1++;
+            } else {
+                state.p1.dead = true;
+            }
+
+            // 2. Update AI
+            if (!state.ai.dead) {
+                const move = calculateAIMove();
+                state.ai.dx = move.dx;
+                state.ai.dy = move.dy;
+
+                const nextAiX = state.ai.x + state.ai.dx;
+                const nextAiY = state.ai.y + state.ai.dy;
+
+                if (nextAiX === state.p1.x && nextAiY === state.p1.y) {
+                    state.ai.dead = true;
+                    state.p1.dead = true;
+                } else {
+                    let aiCrashed = isCollision(nextAiX, nextAiY);
+                    if (!aiCrashed) {
+                        state.ai.x = nextAiX;
+                        state.ai.y = nextAiY;
+                        markGrid(state.ai.x, state.ai.y, COLORS.ai);
+                        drawSegment(state.ai.x, state.ai.y, state.ai.color, state.ai.glow);
+                        state.scores.ai++;
+                    } else {
+                        state.ai.dead = true;
+                    }
+                }
+            }
+
+            // 3. Check Game State
+            if (state.p1.dead || state.ai.dead) {
+                if (!state.p1.dead && state.ai.dead) {
+                    // Win
+                    winLevel();
+                } else {
+                    // Loss or Draw
+                    endGame();
+                }
+            }
+
+            scoreP1El.innerText = state.scores.p1;
+            scoreAiEl.innerText = state.scores.ai;
+        }
+
+        function winLevel() {
+            state.running = false;
+            
+            // Prepare text for next level
+            if (state.level >= 50) {
+                // Ultimate Win
+                alert("CONGRATULATIONS! YOU HAVE DEFEATED THE MCP.");
+                state.level = 1;
+            } else {
+                state.level++;
+                
+                let diff = "NORMAL";
+                if (state.level > 10) diff = "HARD";
+                if (state.level > 25) diff = "RELENTLESS";
+                if (state.level > 40) diff = "GODLIKE";
+                
+                diffTextEl.innerText = diff;
+                
+                uiLayer.classList.remove('hidden');
+                levelScreen.classList.remove('hidden');
+            }
+        }
+
+        function endGame() {
+            state.running = false;
+            let msg = "DEREZZED.";
+            
+            uiLayer.classList.remove('hidden');
+            gameOverScreen.classList.remove('hidden');
+        }
+
+        /**
+         * AI LOGIC: SCALING HUNTER
+         */
+        function calculateAIMove() {
+            const cx = state.ai.x;
+            const cy = state.ai.y;
+            const cdx = state.ai.dx;
+            const cdy = state.ai.dy;
+
+            // Options: Left, Straight, Right
+            const moves = [
+                { dx: -cdy, dy: cdx }, // Left
+                { dx: cdx, dy: cdy },  // Straight
+                { dx: cdy, dy: -cdx }  // Right
+            ];
+
+            let bestMove = moves[1];
+            let maxScore = -99999;
+
+            // Level influences aggression and straight-lining
+            const aggressionWeight = 10 + (state.level * 0.5); 
+            const straightWeight = 40 + (state.level * 0.2);
+
+            const distToPlayerStart = Math.hypot(cx - state.p1.x, cy - state.p1.y);
+
+            for (let move of moves) {
+                const nx = cx + move.dx;
+                const ny = cy + move.dy;
+
+                if (isCollision(nx, ny)) continue;
+
+                // Survival
+                const spaceScore = runFloodFill(nx, ny);
+
+                // Straight Bonus (Human-like lines)
+                let straightBonus = 0;
+                if (move.dx === cdx && move.dy === cdy) {
+                    straightBonus = straightWeight;
+                }
+
+                // Aggression (Closing distance)
+                const distToPlayerEnd = Math.hypot(nx - state.p1.x, ny - state.p1.y);
+                const distDiff = distToPlayerStart - distToPlayerEnd;
+                
+                let aggressionScore = 0;
+                if (spaceScore > 20) {
+                    aggressionScore = distDiff * aggressionWeight;
+                }
+
+                // Less randomness at higher levels
+                const randomFactor = Math.random() * (2 - (state.level * 0.02)); 
+                
+                const totalScore = spaceScore + straightBonus + aggressionScore + Math.max(0, randomFactor);
+
+                if (totalScore > maxScore) {
+                    maxScore = totalScore;
+                    bestMove = move;
+                }
+            }
+
+            return bestMove || { dx: cdx, dy: cdy };
+        }
+
+        function runFloodFill(startX, startY) {
+            let count = 0;
+            let queue = [ {x: startX, y: startY} ];
+            let visited = new Set();
+            visited.add(`${startX},${startY}`);
+            const dirs = [ {x:0, y:-1}, {x:1, y:0}, {x:0, y:1}, {x:-1, y:0} ];
+
+            // Use dynamic scan limit
+            const limit = state.aiScanLimit || 150;
+
+            while(queue.length > 0 && count < limit) {
+                const current = queue.shift();
+                count++;
+
+                for (let d of dirs) {
+                    const nx = current.x + d.x;
+                    const ny = current.y + d.y;
+                    const key = `${nx},${ny}`;
+
+                    if (nx < 0 || nx >= CONFIG.cols || ny < 0 || ny >= CONFIG.rows) continue;
+                    if (state.grid[ny * CONFIG.cols + nx] !== COLORS.empty) continue;
+
+                    if (!visited.has(key)) {
+                        visited.add(key);
+                        queue.push({x: nx, y: ny});
+                    }
+                }
+            }
+            return count;
+        }
+
+        /**
+         * Rendering
+         */
+        function drawSegment(x, y, color, glow) {
+            const px = x * CONFIG.gridSize;
+            const py = y * CONFIG.gridSize;
+            ctx.fillStyle = color;
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = glow;
+            ctx.fillRect(px + 1, py + 1, CONFIG.gridSize - 2, CONFIG.gridSize - 2);
+            ctx.shadowBlur = 0;
+        }
+
+        function drawHeads() {
+            if (!state.p1.dead) {
+                const px = state.p1.x * CONFIG.gridSize;
+                const py = state.p1.y * CONFIG.gridSize;
+                ctx.fillStyle = '#fff';
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#fff';
+                ctx.fillRect(px + 3, py + 3, CONFIG.gridSize - 6, CONFIG.gridSize - 6);
+                ctx.shadowBlur = 0;
+            }
+            if (!state.ai.dead) {
+                const px = state.ai.x * CONFIG.gridSize;
+                const py = state.ai.y * CONFIG.gridSize;
+                ctx.fillStyle = '#fff';
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#fff';
+                ctx.fillRect(px + 3, py + 3, CONFIG.gridSize - 6, CONFIG.gridSize - 6);
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        function gameLoop(time) {
+            if (!state.running) return;
+            const dt = time - state.lastTime;
+            state.lastTime = time;
+            state.accumulator += dt;
+
+            while (state.accumulator >= state.stepInterval) {
+                update();
+                state.accumulator -= state.stepInterval;
+            }
+            drawHeads();
+            requestAnimationFrame(gameLoop);
+        }
+
+        /**
+         * Input
+         */
+        window.addEventListener('keydown', (e) => {
+            if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.code) > -1) e.preventDefault();
+            if (!state.running) return;
+
+            switch(e.key) {
+                case 'ArrowUp': case 'w': case 'W': if (state.p1.dy !== 1) { state.p1.nextDx = 0; state.p1.nextDy = -1; } break;
+                case 'ArrowDown': case 's': case 'S': if (state.p1.dy !== -1) { state.p1.nextDx = 0; state.p1.nextDy = 1; } break;
+                case 'ArrowLeft': case 'a': case 'A': if (state.p1.dx !== 1) { state.p1.nextDx = -1; state.p1.nextDy = 0; } break;
+                case 'ArrowRight': case 'd': case 'D': if (state.p1.dx !== -1) { state.p1.nextDx = 1; state.p1.nextDy = 0; } break;
+            }
+        });
+
+        id('btn-start').addEventListener('click', () => startGame(false));
+        id('btn-next').addEventListener('click', () => startGame(true));
+        id('btn-restart').addEventListener('click', () => startGame(false));
+
+    </script>
+</body>
+</html>
