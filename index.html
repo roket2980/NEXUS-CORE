@@ -273,7 +273,7 @@
         const state = {
             running: false,
             grid: null,
-            level: 1,
+            level:1,
             
             // Entities
             p1: { 
@@ -383,24 +383,29 @@
             entity.turboTime = performance.now();
         }
 
-        function updateEntity(currentTime, entity, isAI) {
+        function updateEntity(dt, entity, isAI) {
             // 1. Manage Turbo Timer
             if (entity.turbo) {
-                if (currentTime - entity.turboTime > CONFIG.powerupDuration) {
+                if (performance.now() - entity.turboTime > CONFIG.powerupDuration) {
                     // Turbo Expire
                     entity.turbo = false;
                     updateDifficulty(); // Reset to normal level speed
                 }
             }
 
-            // 2. Movement Logic
-            if (!entity.dead) {
-                let nextDx = entity.nextDx;
-                let nextDy = entity.nextDy;
+            // 2. Accumulate Time
+            entity.accumulator += dt;
 
-                // Only commit direction if not reversing
-                if (nextDx !== -entity.dx) entity.dx = nextDx;
-                if (nextDy !== -entity.dy) entity.dy = nextDy;
+            // 3. Move if Threshold Reached
+            if (entity.accumulator >= entity.moveInterval) {
+                
+                // DIRECTION LOGIC FIX:
+                // If it is Player, apply buffered input (nextDx)
+                // If it is AI, the direction is already set by calculateAIMove, do NOT overwrite it.
+                if (!isAI) {
+                    if (entity.nextDx !== -entity.dx) entity.dx = entity.nextDx;
+                    if (entity.nextDy !== -entity.dy) entity.dy = entity.nextDy;
+                }
 
                 const nextX = entity.x + entity.dx;
                 const nextY = entity.y + entity.dy;
@@ -430,6 +435,11 @@
                 } else {
                     entity.dead = true;
                 }
+
+                // Deduct accumulator
+                while (entity.accumulator >= entity.moveInterval) {
+                    entity.accumulator -= entity.moveInterval;
+                }
             }
         }
 
@@ -437,7 +447,7 @@
             updateDifficulty();
             
             if (!isNextLevel) {
-                state.level = 1;
+                state.level =1;
                 state.scores.p1 = 0;
                 state.scores.ai = 0;
                 state.powerup.active = false;
@@ -502,16 +512,14 @@
             return state.grid[y * CONFIG.cols + x] !== COLORS.empty;
         }
 
-        function update(currentTime) {
+        function update(currentTime, dt) {
             // Powerup Spawn Timer
             if (!state.powerup.active && (currentTime - state.powerup.spawnTime > CONFIG.powerupInterval)) {
                 spawnPowerup();
                 state.powerup.spawnTime = currentTime;
             }
 
-            // --- INDIVIDUAL ENTITY UPDATES ---
-            
-            // 1. Update P1
+            // --- P1 UPDATE ---
             if (!state.p1.dead) {
                 // Check Powerup Collision
                 if (state.powerup.active && state.p1.x === state.powerup.x && state.p1.y === state.powerup.y) {
@@ -519,15 +527,10 @@
                     applyTurbo(state.p1);
                     p1TurboEl.style.display = 'inline';
                 }
-            }
-            // Move P1 if enough time passed
-            state.p1.accumulator += (currentTime - state.lastTime); // approximate dt
-            if (state.p1.accumulator >= state.p1.moveInterval) {
-                updateEntity(currentTime, state.p1, false);
-                state.p1.accumulator -= state.p1.moveInterval;
+                updateEntity(dt, state.p1, false);
             }
 
-            // 2. Update AI
+            // --- AI UPDATE ---
             if (!state.ai.dead) {
                 // Check Powerup Collision
                 if (state.powerup.active && state.ai.x === state.powerup.x && state.ai.y === state.powerup.y) {
@@ -535,20 +538,19 @@
                     applyTurbo(state.ai);
                     aiTurboEl.style.display = 'inline';
                 }
-            }
-            // Move AI if enough time passed
-            state.ai.accumulator += (currentTime - state.lastTime);
-            if (state.ai.accumulator >= state.ai.moveInterval) {
-                // Calculate Move before moving
-                const move = calculateAIMove();
-                state.ai.dx = move.dx;
-                state.ai.dy = move.dy;
                 
-                updateEntity(currentTime, state.ai, true);
-                state.ai.accumulator -= state.ai.moveInterval;
+                // AI Movement Logic
+                // Calculate move ONLY if about to move
+                if (state.ai.accumulator + dt >= state.ai.moveInterval) {
+                    const move = calculateAIMove();
+                    state.ai.dx = move.dx;
+                    state.ai.dy = move.dy;
+                }
+                
+                updateEntity(dt, state.ai, true);
             }
 
-            // 3. Check Game Over
+            // Check Game Over
             if (state.p1.dead || state.ai.dead) {
                 if (!state.p1.dead && state.ai.dead) {
                     winLevel();
@@ -629,7 +631,6 @@
                 let powerupScore = 0;
                 if (state.powerup.active) {
                     const distToPowerup = Math.hypot(nx - state.powerup.x, ny - state.powerup.y);
-                    // High score incentive to get powerup
                     powerupScore = (2000 - distToPowerup); 
                 }
 
@@ -720,7 +721,7 @@
             if (!state.running) return;
             const dt = time - state.lastTime;
             state.lastTime = time;
-            update(time);
+            update(time, dt);
             drawHeads();
             drawPowerup();
             requestAnimationFrame(gameLoop);
